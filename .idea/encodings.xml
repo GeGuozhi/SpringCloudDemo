@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Encoding">
+    <file url="file://$PROJECT_DIR$" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/childMavenProject" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/childMavenProject/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/eurekaserver" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/eurekaserver/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/mainApp/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/mainApp/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/provider1" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/provider1/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/ribbon" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/ribbon/src/main/java" charset="UTF-8" />
+  </component>
+</project>
