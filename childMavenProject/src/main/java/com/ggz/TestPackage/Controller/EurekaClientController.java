@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class EurekaClientController {
     @GetMapping("EurekaClient")
-    public String service(){
+    public String service() {
         return "eurekaClient Service";
     }
 }

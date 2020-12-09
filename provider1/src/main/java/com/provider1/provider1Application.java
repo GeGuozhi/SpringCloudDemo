@@ -53,7 +53,7 @@ public class provider1Application {
     }
 
     @Bean
-    public Sampler defaultSampler(){
+    public Sampler defaultSampler() {
         return Sampler.ALWAYS_SAMPLE;
     }
 }

@@ -17,7 +17,7 @@ public class Provider1Controller {
     String port;
 
     @GetMapping("providerNumberOne")
-    public String provider(){
+    public String provider() {
         return port;
     }
 }

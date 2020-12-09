@@ -7,24 +7,25 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="eurekaserver" />
-        <module name="ribbon" />
         <module name="childMavenProject" />
         <module name="provider1" />
+        <module name="feign" />
+        <module name="provider" />
         <module name="mainApp" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel target="8">
-      <module name="feign" target="1.8" />
-    </bytecodeTargetLevel>
+    <bytecodeTargetLevel target="8" />
   </component>
   <component name="JavacSettings">
+    <option name="PREFER_TARGET_JDK_COMPILER" value="false" />
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="childMavenProject" options="-parameters" />
       <module name="eurekaserver" options="-parameters" />
       <module name="feign" options="-parameters" />
       <module name="mainApp" options="-parameters" />
+      <module name="parentProject" options="-parameters" />
+      <module name="provider" options="-parameters" />
       <module name="provider1" options="-parameters" />
-      <module name="ribbon" options="-parameters" />
     </option>
   </component>
 </project>

@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html
-      xmlns:th="http://thymeleaf.org">
+        xmlns:th="http://thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>sbTest</title>
 </head>
 <body>
-<p th:text="${userName}" />
-<p th:text="${#dates.format(date, 'yyyy-MM-dd hh:mm:ss')}" />
+<p th:text="${userName}"/>
+<p th:text="${#dates.format(date, 'yyyy-MM-dd hh:mm:ss')}"/>
 <div th:each="user : ${LIST}">
     <p th:text="${user.id}"></p>
     <p th:text="${user.name}"></p>

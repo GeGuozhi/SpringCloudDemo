@@ -49,6 +49,6 @@ public class ClientOfEurekaApplication {
 //            System.exit(1);
 //        }
 //        new SpringApplicationBuilder(ClientOfEurekaApplication.class).properties("server.port=" + port).run(args);
-        SpringApplication.run(ClientOfEurekaApplication.class,args);
+        SpringApplication.run(ClientOfEurekaApplication.class, args);
     }
 }

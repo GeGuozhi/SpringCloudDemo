@@ -11,9 +11,9 @@
     <module>childMavenProject</module>
     <module>eurekaserver</module>
     <module>provider1</module>
-      <module>ribbon</module>
     <module>mainApp</module>
-    <!--      <module>feign</module>-->
+    <module>feign</module>
+    <module>provider</module>
   </modules>
 
   <name>parentProject</name>
