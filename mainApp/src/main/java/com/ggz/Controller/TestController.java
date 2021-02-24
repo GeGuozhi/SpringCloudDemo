@@ -5,7 +5,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
+
+import javax.servlet.http.HttpServletRequest;
 
 
 @Controller
@@ -26,7 +29,16 @@ public class TestController {
     }
 
     @RequestMapping("login")
-    public String login(){
-        return "show";
+    public ModelAndView login(@RequestParam(value = "username",required = false) String username,
+                              @RequestParam(value = "password",required = false) String password,
+                              HttpServletRequest request){
+        ModelAndView modelAndView = new ModelAndView();
+        if("success".equals(username) && "success".equals(password)){
+            modelAndView.setViewName("show");
+        }else{
+            modelAndView.setViewName("error");
+        }
+        return modelAndView;
+
     }
 }
