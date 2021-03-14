@@ -1,8 +1,10 @@
 package com.ggz.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -19,17 +21,17 @@ import org.springframework.security.oauth2.provider.token.TokenStore;
 @Configuration
 @EnableAuthorizationServer
 public class Oauth2Config extends AuthorizationServerConfigurerAdapter {
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-    @Autowired
-    private UserDetailsService userDetailsService;
-    @Autowired
-    private AuthenticationManager authenticationManager;
-    @Autowired
-    private TokenStore redisTokenStore;
+    private final PasswordEncoder passwordEncoder;
+    private final UserDetailsService userDetailsService;
+    private final AuthenticationManager authenticationManager;
+    private final TokenStore redisTokenStore;
 
-    public Oauth2Config() {
+    public Oauth2Config(PasswordEncoder passwordEncoder, @Qualifier("customUserDetailsService") UserDetailsService userDetailsService, AuthenticationManager authenticationManager, TokenStore redisTokenStore) {
         super();
+        this.passwordEncoder = passwordEncoder;
+        this.userDetailsService = userDetailsService;
+        this.authenticationManager = authenticationManager;
+        this.redisTokenStore = redisTokenStore;
     }
 
     /**
@@ -53,15 +55,16 @@ public class Oauth2Config extends AuthorizationServerConfigurerAdapter {
     public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
         clients.inMemory()
                 .withClient("order-client")
-                .secret(passwordEncoder.encode("order-secret-8888"))
+                .secret(passwordEncoder.encode("order-secret-8888"))//b3JkZXItY2xpZW50Om9yZGVyLXNlY3JldC04ODg4
+                .redirectUris("https://www.huya.com/")
                 .authorizedGrantTypes("refresh_token","authorization_code","password")
-                .accessTokenValiditySeconds(360)
+                .accessTokenValiditySeconds(3600)
                 .scopes("all")
                 .and()
                 .withClient("user-client")
-                .secret(passwordEncoder.encode("user-secret-8888"))
+                .secret(passwordEncoder.encode("user-secret-8888"))//dXNlci1jbGllbnQ6dXNlci1zZWNyZXQtODg4OA==
                 .authorizedGrantTypes("refresh_token","authorization_code","password")
-                .accessTokenValiditySeconds(360)
+                .accessTokenValiditySeconds(3600)
                 .scopes("all");
     }
 
@@ -83,6 +86,7 @@ public class Oauth2Config extends AuthorizationServerConfigurerAdapter {
     public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
         endpoints.authenticationManager(authenticationManager)
                 .userDetailsService(userDetailsService)
-                .tokenStore(redisTokenStore);
+                .tokenStore(redisTokenStore)
+                .allowedTokenEndpointRequestMethods(HttpMethod.GET, HttpMethod.POST);
     }
 }

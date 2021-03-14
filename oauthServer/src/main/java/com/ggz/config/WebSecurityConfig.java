@@ -2,6 +2,7 @@ package com.ggz.config;
 
 import com.ggz.service.CustomUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -21,11 +22,14 @@ import org.springframework.security.oauth2.provider.token.store.redis.RedisToken
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
-    @Autowired
-    private CustomUserDetailsService customUserDetailsService;
+    private final CustomUserDetailsService customUserDetailsService;
 
-    @Autowired
-    private ConfigBean configBean;
+    private final ConfigBean configBean;
+
+    public WebSecurityConfig(@Qualifier("configBean") ConfigBean configBean, CustomUserDetailsService customUserDetailsService) {
+        this.configBean = configBean;
+        this.customUserDetailsService = customUserDetailsService;
+    }
 
     @Bean
     @Override

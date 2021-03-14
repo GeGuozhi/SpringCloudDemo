@@ -24,19 +24,19 @@ server:
   port: 8888
   forward-headers-strategy: native
 
-security:
-  oauth2:
-    client:
-      id: mzh-etl
-      client-secret: mzh-etl-8888
-      #获取token地址
-      access-token-uri: http://localhost:8888/oauth/token
-    resource:
-      id: mzh-etl
-      user-info-uri: user-info
-    authorization:
-      #检查token的地址
-      check-token-access: http://localhost:8888/oauth/check_token
+#security:
+#  oauth2:
+#    client:
+#      id: mzh-etl
+#      client-secret: mzh-etl-8888
+#      #获取token地址
+#      access-token-uri: http://localhost:8888/oauth/token
+#    resource:
+#      id: mzh-etl
+#      user-info-uri: user-info
+#    authorization:
+#      #检查token的地址
+#      check-token-access: http://localhost:8888/oauth/check_token
 
 management:
   endpoint:

@@ -13,8 +13,11 @@ import org.springframework.stereotype.Component;
 @Configuration
 @Component(value = "configBean")
 public class ConfigBean {
-    @Autowired
-    private RedisConnectionFactory redisConnectionFactory;
+    private final RedisConnectionFactory redisConnectionFactory;
+
+    public ConfigBean(RedisConnectionFactory redisConnectionFactory) {
+        this.redisConnectionFactory = redisConnectionFactory;
+    }
 
     @Bean
     public PasswordEncoder passwordEncoder(){
