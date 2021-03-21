@@ -53,9 +53,9 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
     UserDetailsService userDetailsService() {
         InMemoryUserDetailsManager userDetailsManager = new InMemoryUserDetailsManager();
         userDetailsManager.createUser(User.withUsername("user_1").password(passwordEncoder().encode("123456")).
-                authorities("ROLE_USER").build());
+                authorities("ROLE_USER").authorities("ADMIN").build());
         userDetailsManager.createUser(User.withUsername("user_2").password(passwordEncoder().encode("1234567")).
-                authorities("ROLE_USER").build());
+                authorities("ADMIN","ADMIN2","ADMIN3").build());
         return userDetailsManager;
     }
 

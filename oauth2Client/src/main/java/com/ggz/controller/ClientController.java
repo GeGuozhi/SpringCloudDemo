@@ -9,11 +9,15 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class ClientController {
     @GetMapping(value = "get")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+//    @PreAuthorize("hasRole('ROLE_USER')")
     public Object get(Authentication authentication){
         authentication.getCredentials();
+        System.out.println(authentication.getAuthorities());
         OAuth2AuthenticationDetails details = (OAuth2AuthenticationDetails) authentication.getDetails();
         String detail = details.getTokenValue();
+        System.out.println("remoteAddress:"+details.getRemoteAddress());
+        System.out.println("sessionId:"+details.getSessionId());
+        System.out.println("tokenType:"+details.getTokenType());
         return detail;
     }
 
