@@ -2,6 +2,15 @@
 spring:
   application:
     name: oauth2Client
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/ccmessage?useUnicode=true&characterEncoding=utf8&characterSetResults=utf8&serverTimezone=GMT%2B8
+    username: root
+    password: root
+  jpa:
+    hibernate:
+      ddl-auto: update #自动更新
+    show-sql: true #日志中显示sql语句
   redis:
     database: 2
     host: localhost
@@ -12,7 +21,6 @@ spring:
         max-idle: 8
         min-idle: 0
     timeout: 10000
-
 #eureka:
 #  client:
 #    serviceUrl:
@@ -39,3 +47,7 @@ management:
   endpoint:
     health:
       enabled: true
+logging:
+  level:
+    org.hibernate.type.descriptor.sql.BasicBinder: trace
+

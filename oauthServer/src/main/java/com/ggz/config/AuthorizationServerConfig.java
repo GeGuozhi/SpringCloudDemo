@@ -1,7 +1,10 @@
 package com.ggz.config;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -17,6 +20,8 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.A
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerEndpointsConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerSecurityConfigurer;
+import org.springframework.security.oauth2.provider.token.TokenStore;
+import org.springframework.security.oauth2.provider.token.store.redis.RedisTokenStore;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 
 
@@ -27,10 +32,15 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
         super();
     }
 
+    @Autowired RedisConnectionFactory redisConnectionFactory;
+
     @Override
     public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
-        clients.inMemory().withClient("client_1").secret(passwordEncoder().encode("123456")).
-                redirectUris("https://www.baidu.com/").authorizedGrantTypes("authorization_code").scopes("all").
+        clients.inMemory().withClient("client_1").
+                secret(passwordEncoder().encode("123456")).
+                redirectUris("https://www.baidu.com/").
+                authorizedGrantTypes("refresh_token","authorization_code","password").
+                scopes("all").
                 accessTokenValiditySeconds(7200);
     }
 
@@ -61,7 +71,10 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
 
     @Override
     public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
-        endpoints.authenticationManager(authenticationManager()).allowedTokenEndpointRequestMethods(HttpMethod.POST, HttpMethod.GET);
+        endpoints.authenticationManager(authenticationManager()).
+                userDetailsService(userDetailsService()).
+                tokenStore(redisTokenStore()).
+                allowedTokenEndpointRequestMethods(HttpMethod.POST, HttpMethod.GET);
     }
 
     @Bean
@@ -84,5 +97,9 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
         return daoAuthenticationProvider;
     }
 
+    @Bean
+    public TokenStore redisTokenStore(){
+        return new RedisTokenStore(redisConnectionFactory);
+    }
 
 }
