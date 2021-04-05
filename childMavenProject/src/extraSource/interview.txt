@@ -16,12 +16,32 @@ equals 和 ==
 
   Map
 1.Map<K,V> 键值对。
-2.Map<K,V> put的过程中，求出key散列值，根据key.hashCode() & (length-1)是否有值，如果没有则设置value为这个值，
-如果有的话，则创建一个新的Node<K,V>来存储（解决了hash冲突）
-3.hash方法为：
+2.hash方法为：
     int hash(Object key){
       int h;
       return (h = key.hashCode()) ^ (h<<<16);
     }
+3.Map<K,V> put
+  Map<K,V> put的过程中，求出key散列值，根据key.hashCode() & (length-1)是否有值，如果没有则设置value为这个值，
+如果有的话，则创建一个新的Node<K,V>来存储（解决了hash冲突）
+
 4.HashMap什么时候进行扩容，当它的实际占有长度大于 size*0.75的时候就会进行扩容。每一次put之后都会判断长度是否
 超过阈值，如果超过阈值则进行resize扩容，扩容的过程可能位置发生变化。
+  如果key.hashCode & oldCap == 0则原始置。
+  如果key.hashCode & oldCap != 0 ,则 oldCap + oldIndex
+
+5.get的方法，先计算 key.hashCode & (length-1) 如果第一个命中则ok，如果不是，则依次判断equals如果相等则命中。
+如果链表中存在8个code，则改变链表为红黑树。如果为6个，则改为链表。
+
+String
+    String的hashCode 算法
+    h = 0;
+    for(int i = 0;h<length;i++){
+        h = value[i]+31*h;
+    }
+    hash = h;
+    return hash;
+
+
+
+https://www.cnblogs.com/zhuifeng523/p/11390884.html
