@@ -25,3 +25,5 @@ dobefore
 客户类型错误   TradeMaxValue注释
 
 instructionSettleMapper 2231
+
+王婷：基金就是债基和货基的业务,其他业务就是净值型项目和利率型项目
