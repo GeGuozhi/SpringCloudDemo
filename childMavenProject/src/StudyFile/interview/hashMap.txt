@@ -8,11 +8,17 @@ equals 和 ==
  1.==判断的是对象的地址是否相等，如果是普通类型的话，就是判断值是否相等。
  2.equals正常也是通过==判断的，但是可以重写equals方法来重新决定判断规则，比如String 的eqauls是通过值判断的
 
+List:ArrayList Object[]，非同步的
+    LinkedList,头插法，尾插法，双向链表，非同步的
+    Vector 本质上也是一个数组,同步的
+
 集合类：
   Set
     Set去重：首先调用hashCode方法判断该key的散列值是否存在，如果不存在，重新散列到其他位置。如果存在，则调用equals判断
     是否相等，如果相等加入失败，如果不等，加入成功。
-
+    HashSet：无序，唯一，底层还是用hashMap保存元素
+    TreeSet：有序，唯一使用自平衡的二叉树（红黑树实现）
+    LinkedHashSet ：顺序不会改变的List<HashMap>
 
   Map
 1.Map<K,V> 键值对。
@@ -41,6 +47,9 @@ String
     }
     hash = h;
     return hash;
+    TreeMap:红黑树实现
+    HashTable : 采用1.7之前的hashMap实现方式，线程安全，使用了synchronized关键字
+
 
 
 
