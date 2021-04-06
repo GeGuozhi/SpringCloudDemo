@@ -1,0 +1,30 @@
+服务提供者，注册服务到服务注册中中心。
+
+消费者通订阅服务注册中心中的服务提供者而得到服务。
+
+服务注册中心，notify提醒消费者服务变更。
+
+消费者消费服务。（invoke调用服务）
+
+ribbon：视图微服务
+通过注册中心调用微服务，之后负载均衡到各个端口的应用中。
+
+RestTemplate方法
+使用RestTemplate负载服务。
+
+openFeign（open Fei）
+是对ribbon的封装，比ribbon还简单。
+
+
+/**
+ * provider1 : 服务名，服务在eureka服务注册中心中注册的服务名。
+ * /serviceNumberOne/providerNumberOne  对于的服务的请求名。
+ */
+@FeignClient("provider1")
+public interface OpenFeignClient {
+
+    @GetMapping("/serviceNumberOne/providerNumberOne")
+    public String getPort();
+	
+	
+	

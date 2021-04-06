@@ -1,0 +1,66 @@
+map：
+	hashmap：允许为null，key相同，覆盖value，非同步存在线程安全问题。
+	treemap：不允许key为空，key相同，覆盖lvalue，非同步，存在线程安全问题，默认升序。
+	hashtable：key，value都不允许为空，
+
+	值传递，引用传递。
+  1.值传递，指的是作为参数传递出去之后不会改变本身的值。引用传递会改变自身的值，对象，数组，接口
+  StringBuffer等。
+  2.但是如果对象作为参数传递之后，重新创建了一个对象（数组，接口，StringBuffer等）的话，引用传递不会生效。
+  3.String创建之后无法修改，只能new一个出来。
+  4。String创建后是不可变的
+equals 和 ==
+ 1.==判断的是对象的地址是否相等，如果是普通类型的话，就是判断值是否相等。
+ 2.equals正常也是通过==判断的，但是可以重写equals方法来重新决定判断规则，比如String 的eqauls是通过值判断的
+
+集合类：
+  Set
+    Set去重：首先调用hashCode方法判断该key的散列值是否存在，如果不存在，重新散列到其他位置。如果存在，则调用equals判断
+    是否相等，如果相等加入失败，如果不等，加入成功。
+
+
+  Map
+1.Map<K,V> 键值对。
+2.hash方法为：
+    int hash(Object key){
+      int h;
+      return (h = key.hashCode()) ^ (h<<<16);
+    }
+3.Map<K,V> put
+  Map<K,V> put的过程中，求出key散列值，根据key.hashCode() & (length-1)是否有值，如果没有则设置value为这个值，
+如果有的话，则创建一个新的Node<K,V>来存储（解决了hash冲突）
+
+4.HashMap什么时候进行扩容，当它的实际占有长度大于 size*0.75的时候就会进行扩容。每一次put之后都会判断长度是否
+超过阈值，如果超过阈值则进行resize扩容，扩容的过程可能位置发生变化。
+  如果key.hashCode & oldCap == 0则原始置。
+  如果key.hashCode & oldCap != 0 ,则 oldCap + oldIndex
+
+5.get的方法，先计算 key.hashCode & (length-1) 如果第一个命中则ok，如果不是，则依次判断equals如果相等则命中。
+如果链表中存在8个code，则改变链表为红黑树。如果为6个，则改为链表。
+
+String
+    String的hashCode 算法
+    h = 0;
+    for(int i = 0;h<length;i++){
+        h = value[i]+31*h;
+    }
+    hash = h;
+    return hash;
+
+6.四种解决冲突方式：
+	1.链式存储，比如hashMap的解决方法
+	2.开发地址法
+	3.建立公共溢出区
+	4.再哈希法，get的过程中，一直hash如果命中则返回（while node为空）
+
+7.Node<K,V> [] tab; tab可不可以使用linkedList，可以，但是数组是底层运算更快一点。
+
+8. java1.8 hashmap做了哪些更改。
+  1.增加了扰动 h = hash(key) ^ (h<<<16)
+	2.扩容的时候，优化了计算index的计算。
+		hash & (oldCap-1) == 0 则使用原始index
+		hash & (oldCap-1) != 0 则 newindex = oldCap + oldIndex;
+	3.更改为 数组+链表--> 数组+（链表、红黑树）
+
+
+https://www.cnblogs.com/zhuifeng523/p/11390884.html

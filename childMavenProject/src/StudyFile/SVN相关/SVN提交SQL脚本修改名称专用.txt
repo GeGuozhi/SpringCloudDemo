@@ -1,0 +1,22 @@
+20190710639500_0_3_动作定义以及添加新权限_TRD_DML_STATEMENT_增加新增资金指令动作并在会计经办页面添加此动作权限.sql
+20190820724000_0_3_字典增加noncashPtype4Recvcost_TRD_DML_STATEMENT_字典增加settle_noncashPtype4Recvcost.sql
+
+20190912738900_0_3_I9向导步骤定义_TRD_DML_STATEMENT_I9向导步骤定义.sql
+
+20190912738900_1_3_I9SQL执行_TRD_DML_STATEMENT_I9SQL执行.sql
+
+20190923776800_0_3_金华银行_TRD_DML_STATEMENT_批量结算视图修改
+
+20190930793500_0_3_I9切换实施步骤工具脚本使用序列生成ID_TRD_DML_STATEMENT_I9切换实施步骤工具脚本使用序列生成ID.sql
+
+20191017780000_0_3_增加券指令明细是否显示保留应收(付)未收(付)本金/利息参数_TRD_DML_STATEMENT_增加券指令明细是否显示保留应收(付)未收(付)本金/利息参数
+
+20191024768300_0_3_打印模板更新_TRD_DML_STATEMENT_打印模板由doc改为rptdesign
+
+20191202840900_0_3_增加交易推送列表界面_TRD_DML_STATEMENT_增加交易推送列表界面
+
+
+添加菜单
+1，添加source 到 菜单库脚本
+2，功能点（相关权限）
+3，
