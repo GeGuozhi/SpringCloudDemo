@@ -1,0 +1,8 @@
+1.writer reader 字符流
+  outputStream，inputStream,字节流。
+  字符流只能解析，字符数组，string(value 相当于 字符数组)
+  字节流可以解析任何形式的文件。
+
+2.序列化，反序列化，时为了通信和存储。
+
+3.
