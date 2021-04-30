@@ -1,0 +1,20 @@
+queue:
+    offer(int i):添加i->queue中。如果超过队列长度，则返回false，但是可以添加成功。
+    add(int i):容量满了会报，illegalStateException异常
+
+    element():返回头节点，但是如果队列为空会报错
+    peek()：队列为空，返回null;
+
+    poll():返回头元素并移除头部元素。
+    remove():如果队列为空，会抛出异常，但poll()不会。
+
+Stack: extends Vector<E> 继承了Vector即数组。线程安全的
+    pop();弹出头节点，返回头节点。
+    peek();返回头节点。
+    push();压入栈，返回压入的节点。
+
+tree:root left right
+
+
+
+

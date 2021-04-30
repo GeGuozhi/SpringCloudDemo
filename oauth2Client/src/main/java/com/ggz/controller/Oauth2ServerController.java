@@ -18,9 +18,8 @@ public class Oauth2ServerController{
 
     @ResponseBody
     @GetMapping("addEntity")
-    public void addEntity(TestEntity testEntity, HttpServletRequest request){
-        testEntity.setName(request.getParameter("name"));
-        testEntity.setAge(Integer.valueOf(request.getParameter("age")));
+    public String addEntity(TestEntity testEntity, HttpServletRequest request){
         testEntityFactory.save(testEntity);
+        return "保存成功了";
     }
 }
