@@ -1,0 +1,19 @@
+filter:
+    在servlet的service()/doGet()/doPost()之前调用doFilter()
+    实例化：Web容器在部署Web应用程序时对所有过滤器进行实例化。Web容器回调它的无参构造方法。
+    init() 实例化完成之后，马上进行初始化工作。Web容器回调init()方法。
+    doFilter() 请求路径匹配过滤器的URL映射时。Web容器回调doFilter()方法——主要的工作方法。
+    destroy() Web容器在卸载Web应用程序前，Web容器回调destroy()方法。
+
+interceptor:
+    1.会先按照顺序执行所有拦截器的preHandle方法，一直遇到return false为止，比如第二个preHandle方法是return false，
+    则第三个以及以后所有拦截器都不会执行。若都是return true，则按顺序加载完preHandle方法。
+    2.然后执行主方法（自己的controller接口），若中间抛出异常，则跟return false效果一致，不会继续执行postHandle，
+    只会倒序执行afterCompletion方法。
+    3.在主方法执行完业务逻辑（页面还未渲染数据）时，按倒序执行postHandle方法。若第三个拦截器的preHandle方法return false，
+    则会执行第二个和第一个的postHandle方法和afterCompletion（postHandle都执行完才会执行这个，也就是页面渲染完数据后，
+    执行after进行清理工作）方法。（postHandle和afterCompletion都是倒序执行）
+
+servlet:
+    jsp是一个小servlet，没有使用框架的时候，在xml对分发进行配置。
+

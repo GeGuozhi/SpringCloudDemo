@@ -7,16 +7,11 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="provider1" />
-      </profile>
-      <profile name="Annotation profile for parentProject" enabled="true">
-        <sourceOutputDir name="../target/generated-sources/annotations" />
-        <sourceTestOutputDir name="../target/generated-test-sources/test-annotations" />
-        <outputRelativeToContentRoot value="true" />
         <module name="eurekaserver" />
-        <module name="oauthServer" />
         <module name="childMavenProject" />
+        <module name="oauthServer" />
         <module name="provider" />
+        <module name="provider1" />
         <module name="feign" />
         <module name="oauth2Client" />
         <module name="mainApp" />

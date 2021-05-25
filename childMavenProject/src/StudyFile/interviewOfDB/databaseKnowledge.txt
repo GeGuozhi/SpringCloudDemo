@@ -1,0 +1,8 @@
+myisam：全文索引，不支持事务，表级别锁。
+innoDb5.几版本也支持了。行级锁
+
+sum = 50
+update test set sum = sum-1 where sum -1>0
+
+
+
