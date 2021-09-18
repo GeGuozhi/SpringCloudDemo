@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: springBootDemo
+server:
+  port: 8005
+  servlet:
+    encoding:
+      enabled: false
+      charset: utf-8
+      force: true
+
+
