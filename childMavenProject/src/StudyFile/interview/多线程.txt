@@ -13,3 +13,16 @@ java早期版本monitor依赖于操作系统的互斥锁实现，而互斥锁从
 
 偏向锁：没有竞争的时候，会消除互斥量，增加了效率。但是竞争激烈情况下不能使用偏向锁。应该升级到 轻量级锁。
 轻量级锁：没有竞争的时候，会使用cas代替互斥量
+
+wait,notify,notifyAll,join,yield分别有什么作用。
+    object方法：
+        wait,notify,notifyAll必须在synchronized修饰下才可以调用，否则报错(illegalMonitorStateException)
+        wait:放弃当前锁以及cpu,必须其他线程调用锁对象重新调用notify或者notifyAll才可以继续运行。
+        notify:随机从等待池中唤醒一个线程，置于锁池，参与锁竞争。
+        notifyAll:从等待池中唤醒所有线程，置于锁池，参与锁竞争。
+    Thread方法：
+        join：等待调用线程结束
+        yield：放弃当前cpu资源，让优先级高的线程先使用，有可能立马又获取到。
+    interrupt:设置中断标识,中断线程(不会立即执行)
+    interrupted:查询中断状态，清除中断标志,设置为false,第一次为true。
+    isInterrupt:返回 中断标识

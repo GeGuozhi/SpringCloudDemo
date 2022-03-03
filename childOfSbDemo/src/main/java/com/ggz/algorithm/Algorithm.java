@@ -7,20 +7,19 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.cache.Weigher;
+import lombok.SneakyThrows;
 
 import java.io.*;
 import java.lang.reflect.Field;
 import java.text.MessageFormat;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
 public class Algorithm {
-
     public static void reflect(Object object,Object object2){
         Class cls = object.getClass();
         Class clsb = object2.getClass();
@@ -68,7 +67,7 @@ public class Algorithm {
     private Lock lock = new ReentrantLock();
 
     public void method(Thread thread) throws InterruptedException {
-//        lock.lock();
+
         if (lock.tryLock(5, TimeUnit.SECONDS)) {
             try {
                 System.out.println("线程名：" + thread.getName() + "获得了锁");
@@ -419,9 +418,9 @@ public class Algorithm {
         //Map<Integer, List<Student>> map1 =
         list.
                 stream().
-                collect(Collectors.groupingBy(s->s.getAge())).
-                forEach((key,value)->{
-                    value.forEach(s -> System.out.println("value:"+s+",key:"+key+",value:"+s.getAge()));
+                collect(Collectors.groupingBy(s -> s.getAge())).
+                forEach((key, value) -> {
+                    value.forEach(s -> System.out.println("value:" + s + ",key:" + key + ",value:" + s.getAge()));
                 });
         List<Student> list1 = Arrays.asList(new Student(1), new Student(4),new Student(2),new Student(5));
 
@@ -454,6 +453,94 @@ public class Algorithm {
             in2.close();
         }catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    private static int flag = 3;
+    private static Object printLock = new Object();
+    public static void printA() throws InterruptedException {
+        for (int i = 0; i < 10; i++) {
+            synchronized (printLock){
+                while(flag != 3){
+                    printLock.wait();
+                }
+                flag = 1;
+                System.out.print("A");
+                printLock.notifyAll();
+            }
+        }
+    }
+
+    public static void printB()  throws InterruptedException {
+        for (int i = 0; i < 10; i++) {
+            synchronized (printLock){
+                while(flag != 1){
+                    printLock.wait();
+                }
+                flag = 2;
+                System.out.print("B");
+                printLock.notifyAll();
+            }
+        }
+    }
+
+    public static void printC() throws InterruptedException {
+        for (int i = 0; i < 10; i++) {
+            synchronized (printLock){
+                while(flag != 2){
+                    printLock.wait();
+                }
+                flag = 3;
+                System.out.print("C");
+                printLock.notifyAll();
+            }
+        }
+    }
+
+    //flag = 3
+    public static void printAA() throws InterruptedException {
+        for (int i = 0; i < 10; i++) {
+                while(flag != 3){
+                    Thread.sleep(1);
+                }
+                flag = 1;
+                System.out.print("A");
+        }
+    }
+
+    public static void printBB() throws InterruptedException {
+        for (int i = 0; i < 10; i++) {
+            while(flag != 1){
+                Thread.sleep(1);
+            }
+            flag = 2;
+            System.out.print("B");
+        }
+    }
+
+    public static void printCC() throws InterruptedException {
+        for (int i = 0; i < 10; i++) {
+            while(flag != 2){
+                Thread.sleep(1);
+            }
+            flag = 3;
+            System.out.print("C");
+        }
+    }
+
+    static ExecutorService executorService = Executors.newFixedThreadPool(5);
+
+    public static void main(String[] args) throws InterruptedException, ExecutionException {
+        FutureTask task = new FutureTask(new a());
+        new Thread(task).start();
+        System.out.println(task.cancel(true));
+    }
+
+    static class a implements Callable<Integer>{
+        @Override
+        public Integer call() throws Exception {
+            Thread.sleep(3000);
+            return 5;
         }
     }
 }

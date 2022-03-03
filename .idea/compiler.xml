@@ -11,9 +11,11 @@
         <module name="childMavenProject" />
         <module name="oauthServer" />
         <module name="provider" />
+        <module name="go" />
         <module name="provider1" />
-        <module name="feign" />
         <module name="oauth2Client" />
+        <module name="feign" />
+        <module name="childOfSbDemo" />
         <module name="mainApp" />
       </profile>
     </annotationProcessing>
@@ -23,8 +25,10 @@
     <option name="PREFER_TARGET_JDK_COMPILER" value="false" />
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="childMavenProject" options="-parameters" />
+      <module name="childOfSbDemo" options="-parameters" />
       <module name="eurekaserver" options="-parameters" />
       <module name="feign" options="-parameters" />
+      <module name="go" options="" />
       <module name="mainApp" options="-parameters" />
       <module name="oauth2Client" options="-parameters" />
       <module name="oauthServer" options="-parameters" />

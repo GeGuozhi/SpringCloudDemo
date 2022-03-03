@@ -3,12 +3,14 @@ package com.ggz.childMavenProject;
 import com.fasterxml.jackson.databind.util.LinkedNode;
 import com.ggz.algorithm.Algorithm;
 import com.ggz.entity.Employee;
+import com.ggz.entity.Flag;
 import com.ggz.proxy.CglibProxy;
 import com.ggz.proxy.LogHandler;
 import com.ggz.service.UserService;
 import com.ggz.service.UserService2;
 import com.ggz.service.impl.UserServiceImpl;
 import com.ggz.service.impl.UserServiceImpl3;
+import com.google.common.base.Stopwatch;
 import com.google.common.collect.Maps;
 import lombok.Value;
 import org.junit.Assert;
@@ -30,13 +32,15 @@ import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public class MonitorTestDriver {
-//    @Value(staticConstructor = "spring.application.name")
-//    String a;
+
+    static ExecutorService executorService = Executors.newFixedThreadPool(5);
 
     public static void main(String[] args) throws InterruptedException, ExecutionException, CloneNotSupportedException, IOException, ClassNotFoundException, ParseException {
         MonitorTestDriver monitor = new MonitorTestDriver();
@@ -81,32 +85,54 @@ public class MonitorTestDriver {
 //        System.out.println("abc".substring(2,3));
 //        System.out.println(7/2);
 
-//        testEntity testEntity = new testEntity();
-//        TxThread tx = new TxThread();
-//        ExecutorService executorService = Executors.newFixedThreadPool(2);
-//        for (int i = 0; i < 5; i++) {
+        TxThread_TestLock tx = new TxThread_TestLock();
+        TxThread txThread = new TxThread();
+
+        for (int i = 0; i < 5; i++) {
 //            executorService.execute(tx);
-//        }
-//        new Thread(tx).start();
-//        new Thread(tx).start();
-//        new Thread(tx).start();
-//        new Thread(tx).start();
-//        executorService.execute(new Runnable() {
-//            @Override
-//            public void run() {
-//                testEntity.test1();
+        }
+
+//        Thread thread = new Thread(()-> {
+//            try {
+//                Thread.sleep(1);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
 //            }
 //        });
-//        executorService.execute(new Runnable() {
-//            @Override
-//            public void run() {
-//                testEntity.test2();
-//            }
-//        });
+
+//        executorService.execute(thread);
+
+//        thread.join();
+//        System.out.println("主线程退出");
 //        executorService.shutdown();
-        int[] a = {1,1,2,2,2};
-        System.out.println(monitor.MoreThanHalfNum_Solution(a));
+//
+//        List list = Arrays.asList("a","b","c");
+//        list.stream().filter(element -> element.equals("a")).forEach(element -> System.out.println(element));
+
+//        new Algorithm().testStream();
+        System.out.println(Flag.F.name());
+        System.out.println(Flag.F.getA());
+        System.out.println(Flag.F.getB());
+        System.out.println(Flag.F.getC());
+        Flag.F.setA("shibai");
+        System.out.println(Flag.F.name());
+
     }
+
+    /**
+     * 计时器
+     */
+    public void timer() {
+        Stopwatch stopwatch = Stopwatch.createStarted();
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }finally {
+            System.out.println(stopwatch.elapsed(TimeUnit.MINUTES));
+        }
+    }
+
 
     /**
      * 寻找从根节点到叶子节点的路径之和等于target的路径并输出。
@@ -691,19 +717,26 @@ public class MonitorTestDriver {
     }
 
 
-    static class TxThread implements Runnable{
-        int num = 100;
-        String str = new String();
+    static class TxThread extends Thread{
         @Override
         public void run() {
-            synchronized (str){
+
+        }
+    }
+
+    static class TxThread_TestLock implements Runnable {
+        int num = 1000;
+        String str = new String();
+        private Lock lock = new ReentrantLock();
+        @Override
+        public void run() {
+            while (num > 0) {
                 try {
-                    Thread.sleep(10);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                while(num > 0){
-                    System.out.println("当前线程名："+Thread.currentThread().getName()+","+num--);
+                    lock.lock();
+                    int a = num--;
+                    System.out.println("当前线程名：" + Thread.currentThread().getName() + "," + a);
+                }finally {
+                    lock.unlock();
                 }
             }
         }

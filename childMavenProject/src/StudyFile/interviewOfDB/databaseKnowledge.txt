@@ -1,8 +1,33 @@
-myisam：全文索引，不支持事务，表级别锁。
+myisam : 全文索引，不支持事务，表级别锁。
 innoDb5.几版本也支持了。行级锁
 
 sum = 50
-update test set sum = sum-1 where sum -1>0
+update test set sum = sum-1 where sum-1 > 0
+
+隔离级别 : 读未提交，读已提交(Read-Committed : Oracle默认隔离级别)，可重复读(Read-Repeated : MySQL默认隔离级别)，串行
+存在问题 : 
+    脏读 : 读到了其他事务没有提交的内容。
+    不可重复读 : a事务在开启事务之后，先读一部分数据，b事务开启，修改a事务读取的数据，a事务在第二次读取的时候，读到了修改后的数据。
+    幻读 : a事务在开启事务之后，先读N条数据数据，b事务开启，增加了符合a事务读取数据条件的M条数据，a事务在第二次读取的时候，读到了
+    N+M条数据。
+读已提交 : 存在不可重复读，幻读
+可重复读 : 存在幻读，在MySQL的innodb引擎中，RR 使用快照读，即在开启事务的时候，每个select都保存一个历史版本，此次修改都在快照版本
+上，不会出现幻读的情况。
+幻读解决方法 :  
+    多版本并发控制（MVCC）
+    当前读 : 读取的结果都是最新的，如果存在更新，则事务提交之前，一直阻塞，mysql中一下两种方式是当前读。
+        select * from test where id = 1 lock in share mode; 加共享锁可以继续lock in share。
+        select * from test where id = 1 for update;加排他锁，不可以再对id=1的数据进行for update。
+
+传播行为 : 7种
+1、PROPAGATION_REQUIRED : 如果当前没有事务，就创建一个新事务，如果当前存在事务，就加入该事务，该设置是最常用的设置。
+2、PROPAGATION_SUPPORTS : 支持当前事务，如果当前存在事务，就加入该事务，如果当前不存在事务，就以非事务执行。
+3、PROPAGATION_MANDATORY : 支持当前事务，如果当前存在事务，就加入该事务，如果当前不存在事务，就抛出异常。
+4、PROPAGATION_REQUIRES_NEW : 创建新事务，无论当前存不存在事务，都创建新事务。
+5、PROPAGATION_NOT_SUPPORTED : 以非事务方式执行操作，如果当前存在事务，就把当前事务挂起。
+6、PROPAGATION_NEVER : 以非事务方式执行，如果当前存在事务，则抛出异常。
+7、PROPAGATION_NESTED : 如果当前存在事务，则在嵌套事务内执行。如果当前没有事务，则执行与PROPAGATION_REQUIRED类似的操作。
+
 
 
 

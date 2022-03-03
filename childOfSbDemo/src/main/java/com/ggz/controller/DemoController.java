@@ -1,5 +1,6 @@
 package com.ggz.controller;
 
+import com.ggz.customizeAnnotation.ActionLog;
 import com.ggz.service.UserService;
 import com.ggz.service.UserService2;
 import com.ggz.service.impl.UserServiceImpl2;
@@ -32,6 +33,7 @@ public class DemoController {
     }
 
     @RequestMapping("post")
+    @ActionLog(module = "支付模块", action = "支付接口",error = "操作失败")
     public String post(){
         return "post";
     }
