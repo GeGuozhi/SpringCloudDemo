@@ -2,7 +2,7 @@ spring:
   application:
     name: springBootDemo
 server:
-  port: 8005
+  port: 8002
   servlet:
     encoding:
       enabled: false

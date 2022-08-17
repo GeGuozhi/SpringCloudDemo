@@ -1,31 +1,44 @@
 spring:
   application:
     name: openFeign
-#  zipkin:
-#    base-url: http://localhost:9411
+  zipkin:
+    base-url: http://localhost:9411
+  redis:
+    database: 0
+    host: localhost
+    port: 6379
+    jedis:
+      pool:
+        max-active: 8
+        max-idle: 8
+        min-idle: 0
+    timeout: 10000
+
 eureka:
   client:
     serviceUrl:
       defaultZone: http://localhost:8761/eureka/
 server:
-  port: 8005
+  port: 8003
 
 feign:
   hystrix:
-    enabled: true
+    enabled: false
 
-security:
-  oauth2:
-    client:
-      client-id: client_feign_1
-      client-secret: 123456
-      user-authorization-uri: http://localhost:8888/oauth/authorize
-      access-token-uri: http://localhost:8888/oauth/token
+
+#security:
+#  oauth2:
+#    client:
+#      client-id: client_feign_1
+#      client-secret: 123456
+#      user-authorization-uri: http://localhost:8888/oauth/authorize
+#      access-token-uri: http://localhost:8888/oauth/token
 #    resource:
 #      id: user-client
 #      user-info-uri: user-info
-    authorization:
-      check-token-access: http://localhost:8888/oauth/check_token
+#    authorization:
+#      check-token-access: http://localhost:8888/oauth/check_token
 
+# 默认登陆账号：密码
 
 

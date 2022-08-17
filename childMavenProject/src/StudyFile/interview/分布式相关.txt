@@ -17,7 +17,43 @@ CAP理论，必须从AP(数据一致性)和CP(服务可用性)做出取舍
     基于Redis实现：
     基于Zookeeper实现：
 
+基于Redis：
+    /**
+     * 设置锁，如果已经存在则返回0
+     * @param key 使用包名全路径可保持唯一
+     * @param value
+     * @return
+     */
+    public boolean lock(String key, String value) {
+        Boolean absent = redisTemplate.opsForValue().setIfAbsent(key, value, 60, TimeUnit.SECONDS);
+        return absent;
+    }
 
+    /**
+     * 解锁，如果lua脚本返回为1，则删除key成功，释放锁成功。
+     *      如果lua脚本返回为0，则删除锁失败
+     * @param key
+     * @param value
+     * @return
+     */
+    public boolean unlock(String key,String value){
+        Long result = (Long) redisTemplate.execute(defaultRedisScript, Arrays.asList(key,value));
+        return RELEASE_SUCCESS.equals(result);
+    }
+
+    释放锁使用Lua脚本，可以保证删除的原子性，k-v对，中v需要用无序字符串，lua脚本删除的时候需要提前对比一下value是否相等
+    以保证过期key不会删除key，已经重新生成锁并获取到的线程异常。
+
+    del.lua-
+
+    if redis.call("get",KEYS[1]) == KEYS[2]
+    then
+        return redis.call("del",KEYS[1])
+    else
+        return 0
+    end
+
+基于数据库：
 
 
 

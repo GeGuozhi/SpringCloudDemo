@@ -265,9 +265,9 @@ public class Algorithm {
     }
 
     /**
-     * continue直接退出当次循环，break退出当前循环
+     * break直接退出当次循环，continue退出当前循环
      */
-    public void loopContinueKey() {
+    public static void loopContinueKey() {
         for (int i = 0; i < 100; i++) {
             if (i != 5) {
                 continue;
@@ -531,9 +531,11 @@ public class Algorithm {
     static ExecutorService executorService = Executors.newFixedThreadPool(5);
 
     public static void main(String[] args) throws InterruptedException, ExecutionException {
-        FutureTask task = new FutureTask(new a());
-        new Thread(task).start();
-        System.out.println(task.cancel(true));
+//        FutureTask task = new FutureTask(new a());
+//        new Thread(task).start();
+//        System.out.println(task.cancel(true));
+
+        loopContinueKey();
     }
 
     static class a implements Callable<Integer>{

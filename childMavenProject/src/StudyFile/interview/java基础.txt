@@ -20,10 +20,18 @@ synchronized 关键字
 当一个synchronized方法被调用的时候，其他的synchronized方法都会阻塞。
 当一个线程访问对象的同步代码块的时候相当于获得了这个对象锁，其他线程对于该对象的同步块访问都被阻塞。
 
+反射:
+        Object obj = new Object();
+        Field field = obj.getClass().getSuperclass().getDeclaredField("fieldMapType");
+			} catch (NoSuchFieldException | SecurityException e1) {
+				throw new RuntimeException("必须包含该属性");
+			}
+		}
+		// 设置是否允许访问，不是修改原来的访问权限修饰词。
+		field.setAccessible(true);
 
+		// 属性进行转换后需组装键值
+		Object obj1 = field.get(obj);
 
-
-
-
-
-
+i++;后面才加上去，当前(i++)=i;
+++i;立马加上去，当前(++i)=(i+1)

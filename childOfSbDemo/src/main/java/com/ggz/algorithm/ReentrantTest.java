@@ -1,6 +1,7 @@
 package com.ggz.algorithm;
 
 
+import java.time.LocalDateTime;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -13,18 +14,19 @@ public class ReentrantTest {
     static ExecutorService executorService = Executors.newFixedThreadPool(100);
 
     public static void main(String[] args) throws InterruptedException {
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                get();
-            }
-        });
-        for (int i = 0; i < 100; i++) {
-            Thread thread1 = new Thread(thread, "thread_" + i);
-            executorService.execute(thread1);
-        }
-
-        executorService.shutdown();
+//        Thread thread = new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                get();
+//            }
+//        });
+//        for (int i = 0; i < 10000; i++) {
+//            Thread thread1 = new Thread(thread, "thread_" + i);
+//            executorService.execute(thread1);
+//        }
+//
+//        executorService.shutdown();
+        System.out.println(LocalDateTime.now());
 
     }
 

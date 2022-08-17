@@ -1,7 +1,10 @@
 map：
 	hashmap：允许为null，key相同，覆盖value，非同步存在线程安全问题。
-	treemap：不允许key为空，key相同，覆盖lvalue，非同步，存在线程安全问题，默认升序。
+	treemap：不允许key为空，key相同，覆盖value，非同步，存在线程安全问题，默认升序。
 	hashtable：key，value都不允许为空，
+	LinkedList:双向链表，底层是双向Queue，线程不安全，可以重复存入null值
+    ArrayList:底层是数组，线程不安全，可以重复存入null值
+    concurrentHashMap:线程安全的HashMap类，key，value都不允许为空，
 
 	值传递，引用传递。
   1.值传递，指的是作为参数传递出去之后不会改变本身的值。引用传递会改变自身的值，对象，数组，接口
@@ -64,3 +67,4 @@ String
 
 
 https://www.cnblogs.com/zhuifeng523/p/11390884.html
+

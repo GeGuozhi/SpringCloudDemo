@@ -12,11 +12,12 @@ import javax.servlet.http.HttpServletRequest;
 @RestController
 public class ClientController {
     @GetMapping(value = "get")
-//    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public Object get(Authentication authentication){
         authentication.getCredentials();
-        System.out.println(authentication.getAuthorities());
         OAuth2AuthenticationDetails details = (OAuth2AuthenticationDetails) authentication.getDetails();
+
+        System.out.println(authentication.getAuthorities());
         String detail = details.getTokenValue();
         System.out.println("remoteAddress:"+details.getRemoteAddress());
         System.out.println("sessionId:"+details.getSessionId());
@@ -25,6 +26,7 @@ public class ClientController {
     }
 
     @GetMapping("test")
+    @PreAuthorize("hasRole('ADMIN1')")
     public String test(HttpServletRequest request){
         return "test success";
     }

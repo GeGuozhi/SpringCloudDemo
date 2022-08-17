@@ -3,7 +3,7 @@ eureka:
     hostname: localhost
   client:
     register-with-eureka: false
-    fetch-registry: false
+    fetch-registry: true
     service-url:
       defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/
   server:
@@ -12,5 +12,3 @@ eureka:
 spring:
   application:
     name: eureka-server
-
-

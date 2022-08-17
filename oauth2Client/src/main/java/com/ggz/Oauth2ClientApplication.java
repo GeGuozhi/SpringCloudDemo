@@ -6,6 +6,6 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 @SpringBootApplication
 public class Oauth2ClientApplication {
     public static void main(String[] args) {
-        new SpringApplicationBuilder(Oauth2ClientApplication.class).properties("8887").run(args);
+        new SpringApplicationBuilder(Oauth2ClientApplication.class).run(args);
     }
 }

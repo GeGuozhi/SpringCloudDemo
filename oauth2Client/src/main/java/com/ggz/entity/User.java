@@ -23,6 +23,7 @@ public class User implements UserDetails{
     @Column(nullable = true, length = 20)
     private int password;
 
+    @OneToMany(targetEntity = Role.class)
     private List<Role> authorities;
 
     @Override

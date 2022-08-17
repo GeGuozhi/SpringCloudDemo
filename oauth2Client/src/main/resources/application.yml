@@ -4,9 +4,9 @@ spring:
     name: oauth2Client
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/ccmessage?useUnicode=true&characterEncoding=utf8&characterSetResults=utf8&serverTimezone=GMT%2B8
+    url: jdbc:mysql://localhost:3306/ggz?useUnicode=true&characterEncoding=utf8&characterSetResults=utf8&serverTimezone=GMT%2B8
     username: root
-    password: xpar
+    password: Mm123456
   jpa:
     hibernate:
       ddl-auto: update #自动更新
@@ -27,7 +27,7 @@ spring:
 #      defaultZone: http://localhost:8761/eureka/
 
 server:
-  port: 8887
+  port: 8005
   forward-headers-strategy: native
 
 security:

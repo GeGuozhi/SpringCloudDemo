@@ -1,14 +1,15 @@
-#   server:
-#   port: 因为会启动多个 product-data-service, 所以端口号由用户自动设置，推荐 8001,8002,8003
-
 spring:
   application:
-    name: provider2
+    name: provider
 #  zipkin:
 #    base-url: http://localhost:9411
 eureka:
   client:
     serviceUrl:
       defaultZone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true
+    ip-address: 127.0.0.1
+
 #server:
-#  port: 8002
+#  port: 8006
