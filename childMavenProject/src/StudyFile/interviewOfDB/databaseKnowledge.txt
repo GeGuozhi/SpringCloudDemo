@@ -28,6 +28,16 @@ update test set sum = sum-1 where sum-1 > 0
 6、PROPAGATION_NEVER : 以非事务方式执行，如果当前存在事务，则抛出异常。
 7、PROPAGATION_NESTED : 如果当前存在事务，则在嵌套事务内执行。如果当前没有事务，则执行与PROPAGATION_REQUIRED类似的操作。
 
+mysql主从
+Master:
+show master status
+记录pos以及file
+从机：
+stop slave
+将主机查询的pos,file以及相关信息更新到从库里面
+CHANGE MASTER TO MASTER_HOST='172.20.10.6',MASTER_USER='slave',MASTER_PASSWORD='Mm123456',MASTER_LOG_FILE='mysql-bin.000026',MASTER_LOG_POS=1024;
+start slave
+
 
 
 

@@ -1,5 +1,6 @@
 package SwordToOffer;
 
+import org.jetbrains.annotations.NotNull;
 import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
@@ -252,6 +253,362 @@ public class Result {
 
 //        System.out.println(MoreThanHalfNum_Solution(new int[]{1,1,1,1,2,2,2}));
 
+//        System.out.println(NumberOf1Between1AndN_Solution(13));
+
+//        System.out.println(PrintMinNumber(new int[]{3,321,4}));
+
+//        System.out.println(GetUglyNumber_Solution(1500));
+
+//        System.out.println(FindContinuousSequence(9));
+
+//        System.out.println(FindNumbersWithSum(new int[]{1, 2, 3, 4, 5, 6, 7}, 5));
+
+//        System.out.println(LeftRotateString("aab", 10));
+
+//        System.out.println(LastRemaining_Solution(10,17));
+
+//        Insert('g');
+//        Insert('o');
+//        Insert('o');
+//        Insert('g');
+//        System.out.println(FirstAppearingOnce());
+
+//        System.out.println(cutRope(18));
+
+//        System.out.println(Arrays.toString(reOrderArrayTwo(new int[]{1, 2, 3, 4, 5, 6, 7})));
+
+        System.out.println(cutRope(9696969696968L));
+
+//        System.out.println(pow(2, 3));
+    }
+
+    /**
+     * JZ83 剪绳子（进阶版）
+     * 给你一根长度为 n 的绳子，请把绳子剪成整数长的 m 段（ m 、 n 都是整数， n > 1 并且 m > 1 ， m <= n ），
+     * 每段绳子的长度记为 k[1],...,k[m] 。请问 k[1]*k[2]*...*k[m] 可能的最大乘积是多少？
+     * 例如，当绳子的长度是 8 时，我们把它剪成长度分别为 2、3、3 的三段，此时得到的最大乘积是 18 。
+     * <p>
+     * 2≤n≤1E14
+     * 由于答案过大，请对 998244353 取模。
+     * Integer.MAX =   2147483647
+     */
+
+    final static int MOD = 998244353;
+
+    public static long cutRope(long number) {
+        if (number < 4) return number - 1;
+        long result = 1;
+        if (number % 3 == 0) {
+            result = pow(3, number / 3);
+        } else if (number % 3 == 1) {
+            result = pow(3, (number / 3) - 1) * 4 % MOD;
+        } else {
+            result = pow(3, number / 3) * 2 % MOD;
+        }
+        return result;
+    }
+
+    /**
+     * 快速计算a^b
+     */
+    public static long pow(long a, long b) {
+        long result = 1;
+        while (b != 0) {
+            if ((b & 1L) != 0) {
+                result = (result * a) % MOD;
+            }
+            a = (a * a) % MOD;
+            b = (b >> 1);
+        }
+        return result;
+    }
+
+    /**
+     * JZ81 调整数组顺序使奇数位于偶数前面(二)
+     * 输入一个长度为 n 整数数组，数组里面可能含有相同的元素，
+     * 实现一个函数来调整该数组中数字的顺序，使得所有的奇数位于数组的前面部分，
+     * 所有的偶数位于数组的后面部分，对奇数和奇数，偶数和偶数之间的相对位置不做要求，
+     * 但是时间复杂度和空间复杂度必须如下要求。
+     */
+
+    public static int[] reOrderArrayTwo(int[] array) {
+        int len = array.length;
+        int[] result = new int[len];
+        int index = 0;
+        int left = 0;
+        int right = len - 1;
+        while (index < len) {
+            if (array[index] % 2 == 1) {
+                result[left] = array[index];
+                left++;
+            } else {
+                result[right] = array[index];
+                right--;
+            }
+            index++;
+        }
+        return result;
+    }
+
+    /**
+     * JZ14 剪绳子
+     * 给你一根长度为n的绳子
+     * 请把绳子剪成整数长的 m 段(m,n都是整数,n>1并且m>1,m<=n)
+     * 每段绳子的长度记为 k[1],...,k[m] 。请问 k[1]*k[2]*...*k[m] 可能的最大乘积是多少?
+     * 例如,当绳子的长度是 8 时,我们把它剪成长度分别为 2,3,3 的三段,此时得到的最大乘积是18.
+     * 数据范围:2<=n<=60
+     * 进阶：空间复杂度 O(1),时间复杂度O(n)
+     */
+
+
+    public static int cutRope(int n) {
+        if (n < 4) return n - 1;
+        int count = n / 3;
+        int result = n % 3 == 2 ? (n - 3 * count) : (n - 3 * (count - 1));
+        return n % 3 == 2 ? (int) (Math.pow(3, count) * result) : (int) (Math.pow(3, count - 1) * result);
+    }
+
+    public static int cutRope_dp(int n) {
+        if (n < 4) return n - 1;
+        int[] dp = new int[n + 1];
+        dp[2] = 2;//直接*2最大
+        dp[3] = 3;//直接*3最大
+        dp[4] = 4;//*2*2最大
+        for (int i = 5; i <= n; i++) {
+            for (int j = 2; j < i - 1; j++) {
+                dp[i] = Math.max(dp[i], j * dp[i - j]);
+            }
+        }
+        return dp[n];
+    }
+
+    /**
+     * JZ75 字符流中第一个不重复的字符
+     * 请实现一个函数用来找出字符流中第一个只出现一次的字符。
+     * 例如，当从字符流中只读出前两个字符 "go" 时，第一个只出现一次的字符是 "g" 。当从该字符流中读出前六个字符 “google" 时，第一个只出现一次的字符是"l"。
+     * 数据范围：字符串长度满足 1<=n<=1000
+     * 后台会用以下方式调用 Insert 和 FirstAppearingOnce 函数
+     */
+
+    private static StringBuffer stringBuffer_JZ75 = new StringBuffer();
+    private static HashMap<Character, Integer> hashMap_JZ75 = new HashMap<>();
+
+    public static void Insert(char ch) {
+        stringBuffer_JZ75.append(ch);
+        hashMap_JZ75.put(ch, hashMap_JZ75.getOrDefault(ch, 1) - 1);
+    }
+
+    public static char FirstAppearingOnce() {
+        char[] result = stringBuffer_JZ75.toString().toCharArray();
+        for (int i = 0; i < result.length; i++) {
+            if (hashMap_JZ75.get(result[i]) == 0) return result[i];
+        }
+        return '#';
+    }
+
+    /**
+     * JZ62 孩子们的游戏(圆圈中最后剩下的数)
+     * 有个游戏是这样的：首先，让 n 个小朋友们围成一个大圈，小朋友们的编号是0~n-1。
+     * 然后，随机指定一个数 m ，让编号为0的小朋友开始报数。每次喊到 m-1 的那个小朋友要出列唱首歌，
+     * 然后可以在礼品箱中任意的挑选礼物，并且不再回到圈中，从他的下一个小朋友开始，
+     * 继续0... m-1报数....这样下去....直到剩下最后一个小朋友，可以不用表演，
+     * 并且拿到牛客礼品，请你试着想下，哪个小朋友会得到这份礼品呢？
+     * <p>
+     * 约瑟夫环
+     */
+
+    public static int LastRemaining_Solution(int n, int m) {
+        int index = 0;
+        int result = 0;
+        for (int i = 2; i <= n; i++) {
+            index = (index + m) % i;
+        }
+        return index;
+    }
+
+    /**
+     * JZ58 左旋转字符串
+     * 对于一个给定的字符序列S ，请你把其循环左移 K 位后的序列输出。例如，字符序列 S = ”abcXYZdef” ,
+     * 要求输出循环左移 3 位后的结果，即 “XYZdefabc”
+     */
+
+    public static String LeftRotateString(String str, int n) {
+        if (str.length() < 2) return str;
+        int a = n % str.length();
+        return str.substring(a) + str.substring(0, a);
+    }
+
+    /**
+     * JZ57 和为S的两个数字
+     * 输入一个升序数组 array 和一个数字S，在数组中查找两个数，使得他们的和正好是S，
+     * 如果有多对数字的和等于S，返回任意一组即可，如果无法找出这样的数字，返回一个空数组即可。
+     * <p>
+     * l,r
+     */
+
+    public static ArrayList<Integer> FindNumbersWithSum(int[] array, int sum) {
+        ArrayList<Integer> list = new ArrayList<>();
+        if (array.length == 0) return list;
+        int l = 0;//min = 1;
+        int r = array.length - 1;//min =
+        while (l < r) {
+            if ((array[l] + array[r]) == sum) {
+                list.add(array[l]);
+                list.add(array[r]);
+                return list;
+            } else if ((array[l] + array[r]) > sum) {
+                r--;
+            } else {
+                l++;
+            }
+        }
+        return list;
+    }
+
+    /**
+     * JZ74 和为S的连续正数序列
+     * 小明很喜欢数学,有一天他在做数学作业时,要求计算出9~16的和,他马上就写出了正确答案是100。
+     * 但是他并不满足于此,他在想究竟有多少种连续的正数序列的和为100(至少包括两个数)。
+     * 没多久,他就得到另一组连续正数和为100的序列:18,19,20,21,22。
+     * 现在把问题交给你,你能不能也很快的找出所有和为S的连续正数序列?
+     * <p>
+     * 滑动数组的方法，从1,2开始，如果小于就右移，直到
+     */
+    public static ArrayList<ArrayList<Integer>> FindContinuousSequence(int sum) {
+        ArrayList<ArrayList<Integer>> res = new ArrayList<ArrayList<Integer>>();
+        if (sum < 3) return res;
+        //从1到2的区间开始
+        int flag = sum / 2 + sum % 2;
+        int l = 1;
+        int r = 2;
+        while (r <= flag) {
+            int sum_l_r = (l + r) * (r - l + 1) / 2;
+            if (sum == sum_l_r) {
+                ArrayList<Integer> list = new ArrayList<>();
+                for (int i = l; i <= r; i++) {
+                    list.add(i);
+                }
+                res.add(list);
+                l++;
+                r++;
+            } else if (sum_l_r < sum) {
+                r++;
+            } else {
+                l++;
+            }
+        }
+        return res;
+    }
+
+
+    /**
+     * JZ49 丑数
+     * 把只包含质因子2、3和5的数称作丑数（Ugly Number）。例如6、8都是丑数，但14不是，因为它包含质因子7。
+     * 习惯上我们把1当做是第一个丑数。
+     * 求按从小到大的顺序的第 n个丑数。
+     */
+
+    /**
+     * 使用小顶堆优先队列,每次从小顶堆取出最小的然后乘以2,3,5,根据hashMap.containKey判断是否重复，重复不加入
+     * 直到取到第index个丑数
+     */
+    public static int GetUglyNumber_Solution(int index) {
+        if (index == 0) return 0;
+        PriorityQueue<Long> priorityQueue = new PriorityQueue<>();
+        HashMap<Long, Integer> map = new HashMap<>();
+        int[] factors = new int[]{2, 3, 5};
+        map.put(1L, 1);
+        priorityQueue.offer(1L);
+        long res = 1L;
+        for (int i = 0; i < index; i++) {
+            res = priorityQueue.poll();
+            for (int fac : factors) {
+                if (!map.containsKey(res * fac)) {
+                    map.put(res * fac, 1);
+                    priorityQueue.offer(res * fac);
+                }
+            }
+        }
+        return (int) res;
+    }
+
+    /**
+     * 暴力方法，判断是否是丑数，然后从1开始循环
+     */
+    public static int GetUglyNumber_Solution_1(int index) {
+        if (index < 2) return index;
+        int result = 1;
+        index--;
+        while (index != 0) {
+            result++;
+            if (judgeUglyNumber_1(result)) {
+                index--;
+            }
+        }
+        return result;
+    }
+
+    public static boolean judgeUglyNumber_1(int number) {
+        int res = 0;
+        while (number != 1) {
+            if (number % 2 == 0) {
+                number = number / 2;
+            } else if (number % 3 == 0) {
+                number = number / 3;
+            } else if (number % 5 == 0) {
+                number = number / 5;
+            } else {
+                return false;
+            }
+        }
+        return true;
+    }
+
+
+    /**
+     * JZ45 把数组排成最小的数
+     * 输入一个非负整数数组numbers，把数组里所有数字拼接起来排成一个数，打印能拼接出的所有数字中最小的一个。
+     * 例如输入数组[3，32，321]，则打印出这三个数字能排成的最小数字为321323。
+     * 1.输出结果可能非常大，所以你需要返回一个字符串而不是整数
+     * 2.拼接起来的数字可能会有前导 0，最后结果不需要去掉前导 0
+     */
+
+    public static String PrintMinNumber(int[] numbers) {
+        if (numbers.length == 0) return "";
+        String[] str = new String[numbers.length];
+        for (int i = 0; i < numbers.length; i++) {
+            str[i] = numbers[i] + "";
+        }
+        Arrays.sort(str, new Comparator<String>() {
+            @Override
+            public int compare(String o1, String o2) {
+                return (o1 + o2).compareTo(o2 + o1);
+            }
+        });
+        String result = "";
+        for (String s : str) result += s;
+        return result;
+    }
+
+    /**
+     * Arrays.sort()
+     */
+    public void testArraySort() {
+
+        Integer[] a = new Integer[]{4, 1, 5, 2, 6, 3, 7};
+        Comparator<Integer> comparator = new Comparator<Integer>() {
+            /**
+             * 小于0向左放，大于0向右放
+             * compare 返回负数就是从小到大，正数就是从大到小
+             */
+            @Override
+            public int compare(Integer o1, Integer o2) {
+                return o1.compareTo(o2);
+            }
+        };
+        //按照重载排序
+        Arrays.sort(a, comparator);
+        System.out.println(Arrays.toString(a));
     }
 
     /**
@@ -260,8 +617,21 @@ public class Result {
      * 例如， 1~13 中包含 1 的数字有 1 、 10 、 11 、 12 、 13 因此共出现 6 次
      * 注意：11 这种情况算两次
      */
-    public int NumberOf1Between1AndN_Solution(int n) {
-        return 1;
+    public static int count_JZ43 = 0;
+
+    public static int NumberOf1Between1AndN_Solution(int n) {
+        for (int i = 1; i <= n; i++) {
+            count_JZ43(i);
+        }
+        return count_JZ43;
+    }
+
+    public static void count_JZ43(int number) {
+
+        while (number != 0) {
+            if (number % 10 == 1) count_JZ43++;
+            number = number / 10;
+        }
     }
 
     /**
@@ -716,8 +1086,8 @@ public class Result {
     }
 
     /**
-     * JZ51
-     * 数组中的逆序对
+     * JZ40
+     * 最小的K个数
      * 给定一个长度为 n 的可能有重复值的数组，找出其中不去重的最小的 k 个数。
      * 例如数组元素是4,5,1,6,2,7,3,8这8个数字，则最小的4个数字是1,2,3,4(任意顺序皆可)。
      * 数据范围：0<=k,n≤10000，数组中每个数的大小0≤val≤1000
@@ -741,6 +1111,22 @@ public class Result {
             }
         }
         for (Integer i : priorityQueue) arrayList.add(i);
+        return arrayList;
+    }
+
+    /**
+     * 小顶堆
+     */
+    public static ArrayList<Integer> GetLeastNumbers_Solution_1(int[] input, int k) {
+        ArrayList<Integer> arrayList = new ArrayList<>();
+        if (input.length < k || k == 0) return arrayList;
+        PriorityQueue<Integer> priorityQueue = new PriorityQueue<Integer>();
+        for (int i = 0; i < input.length; i++) {
+            priorityQueue.offer(input[i]);
+        }
+        for (int i = 0; i < k; i++) {
+            arrayList.add(priorityQueue.poll());
+        }
         return arrayList;
     }
 

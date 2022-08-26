@@ -1,0 +1,80 @@
+https://blog.csdn.net/m0_67391377/article/details/124504953
+
+linux命令：
+/sbin/service rabbitmq-server start
+
+/sbin/service rabbitmq-server status
+
+停止服务
+
+/sbin/service rabbitmq-server stop
+
+开启 web 管理插件
+
+rabbitmq-plugins enable rabbitmq_management
+
+创建账号
+
+rabbitmqctl add_user admin 123
+
+设置用户角色
+
+rabbitmqctl set_user_tags admin administrator
+
+设置用户权限
+
+rabbitmqctl set_permissions -p "/" admin ".*" ".*" ".*"
+
+当前用户和角色
+
+rabbitmqctl list_users
+
+通过浏览器访问：http://192.168.147.128:15672,登录成功的页面
+
+防火墙关闭：
+
+查看防火状态
+
+systemctl status firewalld
+
+service  iptables status
+
+2:暂时关闭防火墙
+
+systemctl stop firewalld
+
+service  iptables stop
+
+3:永久关闭防火墙
+
+systemctl disable firewalld
+
+chkconfig iptables off
+
+4:重启防火墙
+
+systemctl enable firewalld
+
+service iptables restart
+
+5:永久关闭后重启
+
+chkconfig iptables on
+
+rabbitmq的五种工作模式
+1.简单模式：
+    a.指明队列名
+2.工作模式：
+    a.一个队列有多个消费者。一个队列中一条消息，只能被一个消费者消费。
+3.订阅与发布模式：FanoutExchange
+    a.不处理路由键，只需要简单的将队里绑定到交换机上
+    b.生产者将消息不是直接发送到队列，而是发送到X交换机，发送到交换机的消息都会被转发到与该交换机绑定的所有队列上
+    c.Fanout交换机转发消息是最快的
+4.路由模式 DirectExchange
+    a.所有发送到DirectExchange的消息被转发到RouteKey中指定的Queue。
+    b.消息传递时，RouteKey必须完全匹配才会被队列接收，否则该消息会被抛弃。
+    c.指定，queue名以及DirectExchange交换机名
+5.主题模式 topicExchange
+    a.所有发送到Topic Exchange的消息被转发到所有管线RouteKey中指定Topic的Queue上
+    b.Exchange将RouteKey和某Topic进行模糊匹配,此时队列需要绑定一个Topic
+    c.topicExchange如果指定queue以及topicExchange相当于directExchange模式

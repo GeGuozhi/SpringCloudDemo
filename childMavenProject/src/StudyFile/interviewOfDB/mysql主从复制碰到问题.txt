@@ -1,0 +1,24 @@
+mysql远程连接：
+
+mysql -h 172.20.10.6 -P 3306 -u root -p Mm123456
+
+mysql授权：
+
+创建账户:create user ‘用户名’@’访问主机’ identified by ‘密码’;
+
+赋予权限:grant 权限列表 on 数据库 to ‘用户名’@’访问主机’ ;(修改权限时在后面加with grant option)
+
+防火墙问题：
+
+stop slave;
+
+vm_8_ip:192.168.147.1
+
+CHANGE MASTER TO MASTER_HOST='192.168.147.1',MASTER_USER='root',MASTER_PASSWORD='Mm123456',MASTER_LOG_FILE='mysql-bin.000031',MASTER_LOG_POS=4395;
+start slave;
+show slave status
+
+SHOW VARIABLES LIKE 'server_id';
+
+SET GLOBAL server_id=2;
+
