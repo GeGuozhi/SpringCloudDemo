@@ -1,10 +1,13 @@
 myisam : 全文索引，不支持事务，表级别锁。
-innoDb5.几版本也支持了。行级锁
+innoDb 5.几版本也支持了。行级锁
 
 sum = 50
 update test set sum = sum-1 where sum-1 > 0
 
 隔离级别 : 读未提交，读已提交(Read-Committed : Oracle默认隔离级别)，可重复读(Read-Repeated : MySQL默认隔离级别)，串行
+
+mysql：RR不存在幻读和不可重复读，RC存在不可重复读和幻读
+
 存在问题 : 
     脏读 : 读到了其他事务没有提交的内容。
     不可重复读 : a事务在开启事务之后，先读一部分数据，b事务开启，修改a事务读取的数据，a事务在第二次读取的时候，读到了修改后的数据。
@@ -19,7 +22,7 @@ update test set sum = sum-1 where sum-1 > 0
         select * from test where id = 1 lock in share mode; 加共享锁可以继续lock in share。
         select * from test where id = 1 for update;加排他锁，不可以再对id=1的数据进行for update。
 
-传播行为 : 7种
+传播机制 : 7种
 1、PROPAGATION_REQUIRED : 如果当前没有事务，就创建一个新事务，如果当前存在事务，就加入该事务，该设置是最常用的设置。
 2、PROPAGATION_SUPPORTS : 支持当前事务，如果当前存在事务，就加入该事务，如果当前不存在事务，就以非事务执行。
 3、PROPAGATION_MANDATORY : 支持当前事务，如果当前存在事务，就加入该事务，如果当前不存在事务，就抛出异常。
@@ -28,16 +31,46 @@ update test set sum = sum-1 where sum-1 > 0
 6、PROPAGATION_NEVER : 以非事务方式执行，如果当前存在事务，则抛出异常。
 7、PROPAGATION_NESTED : 如果当前存在事务，则在嵌套事务内执行。如果当前没有事务，则执行与PROPAGATION_REQUIRED类似的操作。
 
+required
+required_new  新启事务，与父事务无关联独立提交会滚，父事务异常，不回滚，
+never		 不支持报错
+supports	 支持，没有也可以
+not_supports 不支持，有的话挂起该事务
+nested		 和required_new相似，新启事务后，父事务异常，回滚，不过不会重新触发数据源连接，
+mandatory 	 强制，没有就报错
+
 mysql主从
+
 Master:
 show master status
 记录pos以及file
+
 从机：
 stop slave
-将主机查询的pos,file以及相关信息更新到从库里面
-CHANGE MASTER TO MASTER_HOST='172.20.10.6',MASTER_USER='slave',MASTER_PASSWORD='Mm123456',MASTER_LOG_FILE='mysql-bin.000026',MASTER_LOG_POS=1024;
-start slave
 
+将主机查询的pos,file以及相关信息更新到从库里面
+
+stop slave;
+CHANGE MASTER TO MASTER_HOST='192.168.147.1',MASTER_USER='root',MASTER_PASSWORD='Mm123456',MASTER_LOG_FILE='mysql-bin.000031',MASTER_LOG_POS=13965;
+start slave;
+show slave status
+
+stop slave;
+CHANGE MASTER TO MASTER_HOST='172.20.10.6',MASTER_USER='root',MASTER_PASSWORD='Mm123456',MASTER_LOG_FILE='mysql-bin.000031',MASTER_LOG_POS=17598;
+start slave;
+show slave status
+
+SHOW VARIABLES LIKE 'server_id';
+SET GLOBAL server_id=2;
+
+
+mysql调优：
+大表数据优化：
+1.优化索引，优化SQL
+2.主从复制，读写分裂
+3.垂直划分，大服务划分为小服务
+4.水平划分，对主键取模划分表，或者用日期划分
+5.加缓存Redis
 
 
 

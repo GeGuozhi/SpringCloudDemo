@@ -1,7 +1,8 @@
 package com.provider1.Controller;
 
+import com.ggz.service.TicketService;
 import com.provider1.component.ProviderSender;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.apache.dubbo.config.annotation.Reference;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,6 +21,9 @@ public class Provider1Controller {
     String port;
 
     final ProviderSender process;
+
+    @Reference
+    private TicketService ticketService;
 
     public Provider1Controller(ProviderSender process) {
         this.process = process;
@@ -78,5 +82,10 @@ public class Provider1Controller {
     @GetMapping("topicExchange_c")
     public void topicExchange_c() {
         process.topicExchange_c();
+    }
+
+    @GetMapping("dubboTest")
+    public String dubboTest() {
+        return ticketService.sell();
     }
 }

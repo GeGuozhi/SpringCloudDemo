@@ -2,9 +2,13 @@ package com.ggz.service.impl;
 
 import com.ggz.service.UserService;
 import com.ggz.service.UserService2;
+import org.springframework.beans.factory.annotation.Required;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Transactional(propagation = Propagation.REQUIRED)
 public class UserServiceImpl implements UserService, UserService2 {
 
     private int a = 0;

@@ -9,7 +9,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.boot.web.servlet.ServletComponentScan;
 
 @SpringBootApplication(exclude= {DataSourceAutoConfiguration.class})
-//@ServletComponentScan("com.ggz.servlet")
+@ServletComponentScan("com.ggz.servlet")
 public class sonApplication {
     public static void main(String[] args) {
         new SpringApplication(sonApplication.class).run(args);

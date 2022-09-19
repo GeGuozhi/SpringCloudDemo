@@ -20,5 +20,11 @@ eureka:
     prefer-ip-address: true
     ip-address: 127.0.0.1
 
+dubbo:
+  application:
+    name: provider1
+  registry:
+    address: zookeeper://127.0.0.1:2181
+
 #server:
 #  port: 8007

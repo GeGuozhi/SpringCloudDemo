@@ -2,6 +2,8 @@ package com.ggz.algorithm;
 
 
 import java.time.LocalDateTime;
+import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -26,7 +28,19 @@ public class ReentrantTest {
 //        }
 //
 //        executorService.shutdown();
-        System.out.println(LocalDateTime.now());
+//        System.out.println(LocalDateTime.now());
+
+        TreeMap treeMap = new TreeMap();
+        treeMap.put(1, 1);
+        treeMap.put(3, 1);
+        treeMap.put(2, 1);
+        System.out.println(treeMap);
+
+        TreeSet treeSet = new TreeSet();
+        treeSet.add(1);
+        treeSet.add(3);
+        treeSet.add(2);
+        System.out.println(treeSet);
 
     }
 
@@ -35,14 +49,14 @@ public class ReentrantTest {
         // 获取锁
         try {
             if (lock.tryLock()) {
-                System.out.println((value++)+","+Thread.currentThread().getName());
+                System.out.println((value++) + "," + Thread.currentThread().getName());
             }
             lock.unlock();
         } catch (Exception e) {
             try {
                 Thread.sleep(100);
                 get();
-            }catch (Exception ee){
+            } catch (Exception ee) {
                 System.out.println("睡眠失败！");
             }
         }

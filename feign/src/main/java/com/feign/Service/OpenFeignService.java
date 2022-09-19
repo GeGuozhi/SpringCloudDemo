@@ -14,7 +14,7 @@ public class OpenFeignService {
     final
     OpenFeignClient1 openFeignClient1;
 
-    public OpenFeignService(OpenFeignClient openFeignClient, OpenFeignClient1 openFeignClient1) {
+    public OpenFeignService(@Qualifier("com.feign.client.OpenFeignClient") OpenFeignClient openFeignClient, @Qualifier("com.feign.client.OpenFeignClient1") OpenFeignClient1 openFeignClient1) {
         this.openFeignClient = openFeignClient;
         this.openFeignClient1 = openFeignClient1;
     }

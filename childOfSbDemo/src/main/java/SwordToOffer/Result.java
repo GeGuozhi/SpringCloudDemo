@@ -4,6 +4,7 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
+import java.nio.channels.SelectionKey;
 import java.util.*;
 
 /**
@@ -277,10 +278,59 @@ public class Result {
 
 //        System.out.println(Arrays.toString(reOrderArrayTwo(new int[]{1, 2, 3, 4, 5, 6, 7})));
 
-        System.out.println(cutRope(9696969696968L));
+//        System.out.println(cutRope(9696969696968L));
 
 //        System.out.println(pow(2, 3));
+//        Student student = new Student("1", "1");
+//        Student student2 = new Student("2", "2");
+//        Student[] stu = new Student[]{student, student2};
+//        System.out.println(stu[0]);
+//        System.out.println(stu[1]);
+//
+//        List<Integer> list = new ArrayList<>();
+//        list.add(1);
+//        list.add(3);
+//        list.add(2);
+//        Iterator<Integer> iterator = list.iterator();
+//        while (iterator.hasNext()) {
+//            iterator.next();
+//            iterator.remove();
+//        }
+//
+//        while (iterator.hasNext()) {
+//            System.out.println(iterator.next());
+//        }
+
+//        System.out.println(lengthOfLongestSubstring_1("abcbde"));
+
     }
+
+    /**
+     * 最长不重复子串
+     */
+
+    public static int lengthOfLongestSubstring_1(String s) {
+        // 哈希集合，记录每个字符是否出现过
+        Set<Character> occ = new HashSet<Character>();
+        int n = s.length();
+        // 右指针，初始值为 -1，相当于我们在字符串的左边界的左侧，还没有开始移动
+        int rk = -1, ans = 0;
+        for (int i = 0; i < n; ++i) {
+            if (i != 0) {
+                // 左指针向右移动一格，移除一个字符
+                occ.remove(s.charAt(i - 1));
+            }
+            while (rk + 1 < n && !occ.contains(s.charAt(rk + 1))) {
+                // 不断地移动右指针
+                occ.add(s.charAt(rk + 1));
+                ++rk;
+            }
+            // 第 i 到 rk 个字符是一个极长的无重复字符子串
+            ans = Math.max(ans, rk - i + 1);
+        }
+        return ans;
+    }
+
 
     /**
      * JZ83 剪绳子（进阶版）
@@ -2073,9 +2123,6 @@ public class Result {
      * index = s.subString(0,i-1).indexOf(s.charAt(i-1));
      * if(index>0) dp[i] = dp[i-1]-index
      * else dp[i] = dp[i-1]+1;
-     *
-     * @param s
-     * @return N$po-O6 6.n=h!!#oJM#MNh:kIwxSEjFP7F)(@ROp
      */
     public static int lengthOfLongestSubstring(String s) {
         int dp = 1;

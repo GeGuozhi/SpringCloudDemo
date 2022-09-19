@@ -13,21 +13,27 @@ import javax.servlet.http.HttpServletRequest;
 public class ClientController {
     @GetMapping(value = "get")
     @PreAuthorize("hasRole('ROLE_USER')")
-    public Object get(Authentication authentication){
+    public Object get(Authentication authentication) {
         authentication.getCredentials();
         OAuth2AuthenticationDetails details = (OAuth2AuthenticationDetails) authentication.getDetails();
 
         System.out.println(authentication.getAuthorities());
         String detail = details.getTokenValue();
-        System.out.println("remoteAddress:"+details.getRemoteAddress());
-        System.out.println("sessionId:"+details.getSessionId());
-        System.out.println("tokenType:"+details.getTokenType());
+        System.out.println("remoteAddress:" + details.getRemoteAddress());
+        System.out.println("sessionId:" + details.getSessionId());
+        System.out.println("tokenType:" + details.getTokenType());
         return detail;
     }
 
-    @GetMapping("test")
-    @PreAuthorize("hasRole('ADMIN1')")
-    public String test(HttpServletRequest request){
-        return "test success";
+    @GetMapping(value = "admin")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public Object ADMIN(Authentication authentication) {
+        return "user1_admin";
+    }
+
+    @GetMapping("admin1")
+    @PreAuthorize("hasAuthority('ADMIN1')")
+    public String ADMIN2(HttpServletRequest request) {
+        return "user2_admin1";
     }
 }

@@ -65,7 +65,7 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
         userDetailsManager.createUser(User.withUsername("user_1").password(passwordEncoder().encode("123456")).
                 authorities("ROLE_USER","ADMIN").build());
         userDetailsManager.createUser(User.withUsername("user_2").password(passwordEncoder().encode("1234567")).
-                authorities("ADMIN","ADMIN2","ADMIN3").build());
+                authorities("ADMIN1","ADMIN2","ADMIN3").build());
         return userDetailsManager;
     }
 

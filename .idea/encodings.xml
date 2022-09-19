@@ -1,14 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="Encoding">
+  <component name="Encoding" defaultCharsetForPropertiesFiles="UTF-8">
     <file url="file://$PROJECT_DIR$" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/childMavenProject" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/childMavenProject/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/childOfSbDemo/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/dubboConsumer/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/dubboProvider/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/eurekaserver" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/eurekaserver/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/feign/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/go/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/go/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/mainApp/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/mainApp/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/oauth2Client/src/main/java" charset="UTF-8" />
@@ -16,5 +19,7 @@
     <file url="file://$PROJECT_DIR$/provider/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/provider1" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/provider1/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/resources" charset="UTF-8" />
   </component>
 </project>

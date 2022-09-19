@@ -8,6 +8,11 @@
     </remote-repository>
     <remote-repository>
       <option name="id" value="central" />
+      <option name="name" value="hslr-mvn-virtual" />
+      <option name="url" value="http://artifactory.hundsun.com:80/artifactory/hslr-mvn-virtual" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="central" />
       <option name="name" value="Central Repository" />
       <option name="url" value="https://repo.maven.apache.org/maven2" />
     </remote-repository>
@@ -20,6 +25,11 @@
       <option name="id" value="xQuant-releases" />
       <option name="name" value="xQuant-releases" />
       <option name="url" value="http://191.168.5.144:8081/repository/maven-public/" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="snapshots" />
+      <option name="name" value="hslr-mvn-virtual" />
+      <option name="url" value="http://artifactory.hundsun.com:80/artifactory/hslr-mvn-virtual" />
     </remote-repository>
     <remote-repository>
       <option name="id" value="maven-public" />

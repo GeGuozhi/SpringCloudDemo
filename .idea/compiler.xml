@@ -8,13 +8,15 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="eurekaserver" />
-        <module name="childMavenProject" />
         <module name="oauthServer" />
+        <module name="childMavenProject" />
+        <module name="dubboConsumer" />
         <module name="provider" />
         <module name="go" />
+        <module name="dubboProvider" />
         <module name="provider1" />
-        <module name="oauth2Client" />
         <module name="feign" />
+        <module name="oauth2Client" />
         <module name="childOfSbDemo" />
         <module name="mainApp" />
       </profile>
@@ -22,10 +24,11 @@
     <bytecodeTargetLevel target="8" />
   </component>
   <component name="JavacSettings">
-    <option name="PREFER_TARGET_JDK_COMPILER" value="false" />
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="childMavenProject" options="-parameters" />
       <module name="childOfSbDemo" options="-parameters" />
+      <module name="dubboConsumer" options="-parameters" />
+      <module name="dubboProvider" options="-parameters" />
       <module name="eurekaserver" options="-parameters" />
       <module name="feign" options="-parameters" />
       <module name="go" options="" />

@@ -7,14 +7,13 @@ map：
     concurrentHashMap:线程安全的HashMap类，key，value都不允许为空，
 
 	值传递，引用传递。
-  1.值传递，指的是作为参数传递出去之后不会改变本身的值。引用传递会改变自身的值，对象，数组，接口
-  StringBuffer等。
+  1.值传递，指的是作为参数传递出去之后不会改变本身的值。引用传递会改变自身的值，对象，数组，接口，StringBuffer等。
   2.但是如果对象作为参数传递之后，重新创建了一个对象（数组，接口，StringBuffer等）的话，引用传递不会生效。
   3.String创建之后无法修改，只能new一个出来。
   4。String创建后是不可变的
 equals 和 ==
  1.==判断的是对象的地址是否相等，如果是普通类型的话，就是判断值是否相等。
- 2.equals正常也是通过==判断的，但是可以重写equals方法来重新决定判断规则，比如String 的eqauls是通过值判断的
+ 2.equals正常也是通过==判断的，但是可以重写equals方法来重新决定判断规则，比如String 的equals是通过值判断的
 
 集合类：
   Set
@@ -27,7 +26,7 @@ equals 和 ==
 2.hash方法为：
     int hash(Object key){
       int h;
-      return (h = key.hashCode()) ^ (h<<<16);
+      return (h = key.hashCode()) ^ (h >>> 16);
     }
 3.Map<K,V> put
   Map<K,V> put的过程中，求出key散列值，根据key.hashCode() & (length-1)是否有值，如果没有则设置value为这个值，
@@ -39,7 +38,8 @@ equals 和 ==
   如果key.hashCode & oldCap != 0 ,则 oldCap + oldIndex
 
 5.get的方法，先计算 key.hashCode & (length-1) 如果第一个命中则ok，如果不是，则依次判断equals如果相等则命中。
-如果链表中存在8个code，则改变链表为红黑树。如果为6个，则改为链表。
+
+6.如果链表中存在8个code，则改变链表为红黑树。如果为6个，则改为链表。
 
 String
     String的hashCode 算法
@@ -59,12 +59,11 @@ String
 7.Node<K,V> [] tab; tab可不可以使用linkedList，可以，但是数组是底层运算更快一点。
 
 8. java1.8 hashmap做了哪些更改。
-  1.增加了扰动 h = hash(key) ^ (h<<<16)
-	2.扩容的时候，优化了计算index的计算。
-		hash & (oldCap-1) == 0 则使用原始index
-		hash & (oldCap-1) != 0 则 newindex = oldCap + oldIndex;
-	3.更改为 数组+链表--> 数组+（链表、红黑树）
+    1.增加了扰动 h = hash(key) ^ (h>>>16)
+    2.扩容的时候，优化了计算index的计算。
+        hash & (oldCap-1) == 0 则使用原始index
+        hash & (oldCap-1) != 0 则 newindex = oldCap + oldIndex;
+    3.更改为 数组+链表--> 数组+（链表、红黑树）
 
 
 https://www.cnblogs.com/zhuifeng523/p/11390884.html
-

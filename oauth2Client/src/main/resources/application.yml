@@ -27,7 +27,7 @@ spring:
 #      defaultZone: http://localhost:8761/eureka/
 
 server:
-  port: 8005
+  port: 8006
   forward-headers-strategy: native
 
 security:

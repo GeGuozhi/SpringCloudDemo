@@ -18,6 +18,8 @@
     <module>oauth2Client</module>
     <module>childOfSbDemo</module>
       <module>go</module>
+    <module>dubboProvider</module>
+      <module>dubboConsumer</module>
       <!--    <module>rabbitmq</module>-->
   </modules>
 
