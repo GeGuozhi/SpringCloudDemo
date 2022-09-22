@@ -5,6 +5,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContextInitializer;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
@@ -83,7 +84,8 @@ public class NIOClient implements InitializingBean {
     }
 
     public static void main(String[] args) throws Exception {
-        new NIOClient().start();
+//        new NIOClient().start();
+//        System.out.println(new BigDecimal(1.2252).setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue());//四舍五入
     }
 
     @Override

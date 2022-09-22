@@ -303,6 +303,17 @@ public class Result {
 
 //        System.out.println(lengthOfLongestSubstring_1("abcbde"));
 
+//        System.out.println((int) Math.pow(2.0,17.0)>>>16);
+        HashMap<String,String> map = new HashMap<>();
+        for(int i = 0;i<12;i++){
+            map.put(String.valueOf((char)(i+97)), String.valueOf(i));
+        }
+
+        map.get("a");
+        map.get("b");
+
+        System.out.println();
+
     }
 
     /**

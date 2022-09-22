@@ -1,0 +1,5 @@
+hessian 基于 http请求
+openFeign Netflix
+dubbo 基于zookeeper注册服务，完成远程调用
+
+dubbo底层是nio框架netty，netty底层是封装了nio。

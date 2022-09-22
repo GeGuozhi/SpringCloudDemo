@@ -11,5 +11,12 @@ dubbo:
   protocol:
     port: 20880
 
+  provider:
+    executes: 20
+    actives: 20
+    interface: com.ggz.service.TicketService
+  consumer:
+    actives: 20
+
 server:
   port: 8081

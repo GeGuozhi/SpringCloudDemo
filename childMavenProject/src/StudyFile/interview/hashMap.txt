@@ -34,8 +34,8 @@ equals 和 ==
 
 4.HashMap什么时候进行扩容，当它的实际占有长度大于 size*0.75的时候就会进行扩容。每一次put之后都会判断长度是否
 超过阈值，如果超过阈值则进行resize扩容，扩容的过程可能位置发生变化。
-  如果key.hashCode & oldCap == 0则原始置。
-  如果key.hashCode & oldCap != 0 ,则 oldCap + oldIndex
+  如果key.hashCode & oldCap == 0 , 则 oldCap (原始位置)。
+  如果key.hashCode & oldCap != 0 , 则 oldCap + oldIndex
 
 5.get的方法，先计算 key.hashCode & (length-1) 如果第一个命中则ok，如果不是，则依次判断equals如果相等则命中。
 
