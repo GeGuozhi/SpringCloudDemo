@@ -12,6 +12,3 @@ Stack: extends Vector<E> 继承了Vector即数组。线程安全的
     pop();弹出头节点，返回头节点。
     peek();返回头节点。
     push();压入栈，返回压入的节点。
-
-
-

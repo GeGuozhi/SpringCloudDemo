@@ -17,7 +17,7 @@ mysql：RR不存在幻读和不可重复读，RC存在不可重复读和幻读
 可重复读 : 存在幻读，在MySQL的innodb引擎中，RR 使用快照读，即在开启事务的时候，每个select都保存一个历史版本，此次修改都在快照版本
 上，不会出现幻读的情况。
 幻读解决方法 :  
-    多版本并发控制（MVCC）
+    多版本并发控制(MVCC)
     当前读 : 读取的结果都是最新的，如果存在更新，则事务提交之前，一直阻塞，mysql中一下两种方式是当前读。
         select * from test where id = 1 lock in share mode; 加共享锁可以继续lock in share。
         select * from test where id = 1 for update;加排他锁，不可以再对id=1的数据进行for update。
@@ -72,5 +72,48 @@ mysql调优：
 4.水平划分，对主键取模划分表，或者用日期划分
 5.加缓存Redis
 
+mysql事务原理
+
+redo log:
+
+引入redo log是为了解决mysql将buffer pool数据持久化到磁盘中的过程中出现断电、宕机而导致丢失数据的情况
+redo log是用来恢复数据的 用于保障，已提交事务的持久化特性
+
+1.开始事务
+2.执行修改语句 --> 为了提高性能，将修改结果存储到buffer pool中，由后台线程同步buffer pool和磁盘
+3.同上        --> 将修改结果，存储到redo log buffer中
+4.提交事务
+5.同步redolog --> 将redo log buffer同步到磁盘，redo log中
+6.出现断电宕机 --> 从redo log中读取数据，恢复数据到数据库磁盘中
+
+undo log：
+引入undo log是为了解决，执行失败，回滚的操作
+undo log会将修改前的数据保存起来，如果发生执行失败，需要会滚，则恢复数据
+undo log是用来回滚数据的用于保障 未提交事务的原子性
+
+MVCC multiversion concurrency control 多版本并发控制
+MVCC+读写锁 实现事务的隔离性，各个事务对数据库的修改不会相互干扰
+
+redo log决定事务的持久性
+undo log决定事务的原子性
+mvcc+读写锁决定事务的隔离性
+
+持久性+原子性+隔离性 决定了事务的一致性
+
+redo log也是要存储到磁盘，为什么不直接将buffer pool的数据存储到磁盘中？
+1.buffer pool持久化到磁盘是随机的，不是顺序的，为了更快的存储。
+2.缓存同步，是以数据页为单位的，大于redo log，因此更容易丢失。
+
+行锁建立在索引上，如果加的行锁所在列不是索引，则升级到表锁
+
+explain
+
+
+间隙锁：
+作用：mysql增加间隙锁是为了解决，幻读
+关闭间隙锁的RR 退化为 RC
+
+主键索引和唯一索引，命中空行或者范围，则根据实际数据产生间隙锁，单行，只对单行加锁
+一般索引可重复，对行加锁，会产生间隙锁，全部都会产生间隙锁
 
 

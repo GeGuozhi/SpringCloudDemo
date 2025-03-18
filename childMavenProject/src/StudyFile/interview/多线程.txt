@@ -1,5 +1,3 @@
-
-
 锁的四种状态：无锁状态，偏向锁状态，轻量级锁状态，重量级锁状态。
 
 synchronized 代码块锁主要由，存在于对象头中的monitor对象的monitorEnter 和 monitorExit指令控制，
@@ -21,8 +19,9 @@ wait,notify,notifyAll,join,yield分别有什么作用。
         notify:随机从等待池中唤醒一个线程，置于锁池，参与锁竞争。
         notifyAll:从等待池中唤醒所有线程，置于锁池，参与锁竞争。
     Thread方法：
+        sleep:休眠，放弃cpu，不放弃锁
         join：等待调用线程结束
         yield：放弃当前cpu资源，让优先级高的线程先使用，有可能立马又获取到。
-    interrupt:设置中断标识,中断线程(不会立即执行)
+    interrupt:设置中断标识,中断线程(不会立即执行),修改标识为true
     interrupted:查询中断状态，清除中断标志,设置为false,第一次为true。
-    isInterrupt:返回 中断标识
+    isInterrupted:返回中断标识

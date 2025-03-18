@@ -1,19 +1,11 @@
 map：
 	hashmap：允许为null，key相同，覆盖value，非同步存在线程安全问题。
 	treemap：不允许key为空，key相同，覆盖value，非同步，存在线程安全问题，默认升序。
-	hashtable：key，value都不允许为空，
-	LinkedList:双向链表，底层是双向Queue，线程不安全，可以重复存入null值
-    ArrayList:底层是数组，线程不安全，可以重复存入null值
+	hashtable：key，value都不允许为空，线程安全
+	LinkedList:双向链表，底层是双向Queue，线程不安全，可以重复存入null值，有序
+    ArrayList:底层是数组，线程不安全，可以重复存入null值，有序
     concurrentHashMap:线程安全的HashMap类，key，value都不允许为空，
-
-	值传递，引用传递。
-  1.值传递，指的是作为参数传递出去之后不会改变本身的值。引用传递会改变自身的值，对象，数组，接口，StringBuffer等。
-  2.但是如果对象作为参数传递之后，重新创建了一个对象（数组，接口，StringBuffer等）的话，引用传递不会生效。
-  3.String创建之后无法修改，只能new一个出来。
-  4。String创建后是不可变的
-equals 和 ==
- 1.==判断的是对象的地址是否相等，如果是普通类型的话，就是判断值是否相等。
- 2.equals正常也是通过==判断的，但是可以重写equals方法来重新决定判断规则，比如String 的equals是通过值判断的
+    LinkedHashMap:按照存入顺序存储的hashmap,线程不安全
 
 集合类：
   Set
@@ -65,5 +57,13 @@ String
         hash & (oldCap-1) != 0 则 newindex = oldCap + oldIndex;
     3.更改为 数组+链表--> 数组+（链表、红黑树）
 
+StringBuffer:线程安全
+StringBuilder:线程不安全
+
+值传递，引用传递。
+1.值传递，指的是作为参数传递出去之后不会改变本身的值。引用传递会改变自身的值，对象，数组，接口，StringBuffer等。
+2.但是如果对象作为参数传递之后，重新创建了一个对象（数组，接口，StringBuffer等）的话，引用传递不会生效。
+3.String创建之后无法修改，只能new一个出来。
+4.String创建后是不可变的
 
 https://www.cnblogs.com/zhuifeng523/p/11390884.html

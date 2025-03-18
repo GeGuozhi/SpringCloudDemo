@@ -20,4 +20,6 @@ public class dubboController {
     public String dubboTest() {
         return userService.sellTicket();
     }
+
+
 }

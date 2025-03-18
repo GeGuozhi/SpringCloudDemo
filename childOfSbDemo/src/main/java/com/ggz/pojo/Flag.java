@@ -1,4 +1,4 @@
-package com.ggz.entity;
+package com.ggz.pojo;
 
 public enum Flag {
     S("success","0","1"),

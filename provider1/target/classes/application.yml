@@ -7,14 +7,24 @@ spring:
 #  zipkin:
 #    base-url: http://localhost:9411
   rabbitmq:
-    host: localhost
+    host: 192.168.147.128
     port: 5672
-    username: guest
-    password: guest
+    username: admin
+    password: 123
+
 eureka:
   client:
     serviceUrl:
       defaultZone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true
+    ip-address: 127.0.0.1
+
+dubbo:
+  application:
+    name: provider1
+  registry:
+    address: zookeeper://127.0.0.1:2181
 
 #server:
-#  port: 8002
+#  port: 8007

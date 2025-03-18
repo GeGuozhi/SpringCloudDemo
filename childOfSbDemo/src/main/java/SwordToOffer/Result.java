@@ -7,6 +7,8 @@ import java.math.BigDecimal;
 import java.nio.channels.SelectionKey;
 import java.util.*;
 
+import static java.lang.String.valueOf;
+
 /**
  * 剑指offer 算法入口
  *
@@ -192,7 +194,7 @@ public class Result {
 
 //        System.out.println(movingCount(0, 1, 1));
 
-//        int[] a = new int[]{8, 5, 2, 7, 10, 9, 4, 7, 6};
+//        int[] a = new int[]{8, 5, 2, 7, 10, 9, 4, 7, 6,6};
 //        int[] b = new int[]{3, 1, 2, -900, 5, 6, 8, 4, 7, 0};
 //        int[] c = new int[]{1, 2, 3, 4, 5, 6, 7, 0};
 
@@ -302,19 +304,79 @@ public class Result {
 //        }
 
 //        System.out.println(lengthOfLongestSubstring_1("abcbde"));
+//        System.out.println(getJZ44(1888));
+//        System.out.println(findNthDigit(1888));
 
-//        System.out.println((int) Math.pow(2.0,17.0)>>>16);
-        HashMap<String,String> map = new HashMap<>();
-        for(int i = 0;i<12;i++){
-            map.put(String.valueOf((char)(i+97)), String.valueOf(i));
-        }
+        Object a = new Object();
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                synchronized (a) {
+                    synchronized (a) {
+                        System.out.println("a");
+                    }
+                }
+            }
+        });
+//        thread.start();
 
-        map.get("a");
-        map.get("b");
 
-        System.out.println();
+        System.out.println(firstOnly("abcccbb"));
 
     }
+
+
+    static HashMap<Character, Integer> map = new HashMap<Character, Integer>();
+    static LinkedList<Character> list = new LinkedList<Character>();
+
+    public static Character firstOnly(String str) {
+        for (int i = 0; i < str.length(); i++) {
+            if (map.get(str.charAt(i)) == null) {
+                map.put(str.charAt(i), 1);
+            } else {
+                if ((map.get(str.charAt(i)) + 1) == 3) {
+                    list.offer(str.charAt(i));
+                    map.put(str.charAt(i), map.get(str.charAt(i)) + 1);
+                } else {
+                    map.put(str.charAt(i), map.get(str.charAt(i)) + 1);
+                }
+            }
+        }
+
+        for (int i = 0; i < list.size(); i++) {
+            if (map.get(list.peek()) == 3) {
+                return list.peek();
+            } else {
+                list.poll();
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * 012345678910111213
+     * 第n个是哪个数字
+     * 0-9         9    * 1
+     * 10-99       90个 * 2
+     * 100-999     900  * 3
+     * 1000-9999   9000 * 4
+     */
+    public static int getJZ44(int n) {
+        if (n < 10) return n;
+        int a = 1;
+        int b = 2;
+        int next = 9;
+        while ((n - next) > (9 * (Math.pow(10, a)) * b)) {
+            next = next + (int) (9 * (Math.pow(10, a)) * b);
+            a++;
+            b++;
+        }
+        int number = (n - next) % b == 0 ? (n - next) / b : ((n - next) / b + 1);
+        number = number - 1 + (int) Math.pow(10, a);
+        return Integer.valueOf(valueOf(valueOf(number).charAt((n - next) % b)));
+    }
+
 
     /**
      * 最长不重复子串
@@ -819,7 +881,9 @@ public class Result {
         for (char c : map.keySet()) {
             if (map.get(c) == 1) return str.indexOf(c);
         }
+        Integer a = Integer.valueOf(1);
         return -1;
+
     }
 
     /**
@@ -991,7 +1055,7 @@ public class Result {
             index++;
         }
         while (index < s.length() && s.charAt(index) <= 57 && s.charAt(index) >= 48) {
-            resultNumber = resultNumber.concat(String.valueOf(s.charAt(index)));
+            resultNumber = resultNumber.concat(valueOf(s.charAt(index)));
             index++;
         }
         resultNumber = resultNumber.length() >= 13 ? resultNumber.substring(0, 13) : resultNumber;
@@ -1583,10 +1647,10 @@ public class Result {
             index++;
             return null;
         }
-        int val = Integer.valueOf(String.valueOf(str.charAt(index)));
+        int val = Integer.valueOf(valueOf(str.charAt(index)));
         while (str.charAt(index + 1) != '!') {
             index++;
-            val = 10 * val + Integer.valueOf(String.valueOf(str.charAt(index)));
+            val = 10 * val + Integer.valueOf(valueOf(str.charAt(index)));
         }
         TreeNode node = new TreeNode(val);
         index++;
@@ -2471,9 +2535,9 @@ public class Result {
         int b = n % digit;//1
         int c = (int) (Math.pow(10, digit - 1) + a);//10
         if (b > 0) {
-            return Integer.parseInt(String.valueOf(String.valueOf(c).charAt(b - 1)));
+            return Integer.parseInt(valueOf(valueOf(c).charAt(b - 1)));
         } else {
-            return Integer.parseInt(String.valueOf(String.valueOf(c - 1).charAt(String.valueOf(c).length() - 1)));
+            return Integer.parseInt(valueOf(valueOf(c - 1).charAt(valueOf(c).length() - 1)));
         }
     }
 
@@ -3001,24 +3065,53 @@ public class Result {
 
     /**
      * 快速排序
-     */
-    public static void quickSort(int[] nums, int start, int end) {
-        if (end - start < 1) return;
-        int pivot = getPivot(nums, start, end);
-        quickSort(nums, start, pivot - 1);
-        quickSort(nums, pivot + 1, end);
-    }
+     */ 
+//    public static void quickSort(int[] nums, int start, int end) {
+//        if (end - start < 1) return;
+//        int pivot = getPivot(nums, start, end);
+//        quickSort(nums, start, pivot - 1);
+//        quickSort(nums, pivot + 1, end);
+//    }
 
     /**
      * 将nums从start到end分区，左边区域比基数小，右边区域比基数大，然后返回中间值的下标
      */
-    public static int getPivot(int[] nums, int start, int end) {
+//    public static int getPivot(int[] nums, int start, int end) {
+//        int pivot = nums[end];
+//        int end1 = end;
+//        if (end - start < 1) {
+//            return start;
+//        }
+//        while (start < end) {
+//            while (start < end && nums[start] <= pivot) start++;
+//            while (start < end && nums[end - 1] > pivot) end--;
+//            if (start < end) {
+//                swap(nums, start, end - 1);
+//                start++;
+//                end--;
+//            }
+//        }
+//        if (nums[start] > pivot) {
+//            swap(nums, start, end1);
+//        } else {
+//            swap(nums, end, end1);
+//        }
+//        return start;
+//    }
+    public static void quickSort(int[] nums, int start, int end) {
+        if (end - start < 1) return;
+        int index = getIndex(nums, start, end);
+        quickSort(nums, start, index - 1);
+        quickSort(nums, index + 1, end);
+    }
+
+    //前小后大
+    private static int getIndex(int[] nums, int start, int end) {
         int pivot = nums[end];
         int end1 = end;
-        if (end - start < 1) {
-            return start;
-        }
+        if (end - start < 1) return start;
         while (start < end) {
+            //前小后大
             while (start < end && nums[start] <= pivot) start++;
             while (start < end && nums[end - 1] > pivot) end--;
             if (start < end) {

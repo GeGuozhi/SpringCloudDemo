@@ -2,6 +2,7 @@ package com.ggz.Controller;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,6 +26,8 @@ public class TestController {
 
     @RequestMapping("test")
     public String test(){
+
+
         return "index";
     }
 
@@ -41,4 +44,5 @@ public class TestController {
         return modelAndView;
 
     }
+
 }

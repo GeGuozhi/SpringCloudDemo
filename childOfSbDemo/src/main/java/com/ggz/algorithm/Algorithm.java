@@ -2,12 +2,10 @@ package com.ggz.algorithm;
 
 import com.ggz.childMavenProject.MonitorTestDriver;
 import com.ggz.childMavenProject.Student;
-import com.ggz.childMavenProject.Teacher;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.cache.Weigher;
-import lombok.SneakyThrows;
 
 import java.io.*;
 import java.lang.reflect.Field;
@@ -17,23 +15,22 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.stream.Collectors;
 
 public class Algorithm {
-    public static void reflect(Object object,Object object2){
+    public static void reflect(Object object, Object object2) {
         Class cls = object.getClass();
         Class clsb = object2.getClass();
         //将参数类转换为对应属性数量的Field类型数组（即该类有多少个属性字段 N 转换后的数组长度即为 N）
         Field[] fields = cls.getDeclaredFields();
         Field[] fields2 = clsb.getDeclaredFields();
-        for(int i = 0;i < fields.length; i ++){
+        for (int i = 0; i < fields.length; i++) {
             Field f = fields[i];
             Field f2 = fields2[i];
             f.setAccessible(true);
             f2.setAccessible(true);
             try {
-                if(f.get(object) != null){
-                    f2.set(object2,f.get(object));
+                if (f.get(object) != null) {
+                    f2.set(object2, f.get(object));
                 }
             } catch (IllegalArgumentException | IllegalAccessException e) {
                 e.printStackTrace();
@@ -51,11 +48,12 @@ public class Algorithm {
 
     private static final int THREADS_COUNT = 20;
 
+    private static AtomicInteger atomicInteger = new AtomicInteger(0);
+
     public static void increase() {
         race++;
         atomicInteger.getAndIncrement();
         normalInt++;
-        atomicInteger1.getAndIncrement();
     }
 
 
@@ -79,62 +77,6 @@ public class Algorithm {
                 lock.unlock();
             }
         }
-    }
-
-
-    /**
-     * 原子操作类
-     * atomicInteger.incrementAndGet()可以原子操作int类型。
-     * atomicInteger.get()可以获取到int类型的当前值。
-     */
-    static AtomicInteger atomicInteger = new AtomicInteger();
-
-    static AtomicInteger atomicInteger1 = new AtomicInteger();
-
-    public void testAtom(Long time) {
-        Thread[] threads = new Thread[5];
-        for (int i = 0; i < 5; i++) {
-            threads[i] = new Thread(() -> {
-                for (int j = 0; j < 10; j++) {
-                    atomicInteger.incrementAndGet();
-                    if (atomicInteger.get() == 50) {
-                        System.out.println((System.currentTimeMillis() - time) / 1000 + "s");
-                    }
-                    try {
-                        Thread.sleep(500);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            });
-            threads[i].start();
-        }
-    }
-    protected void testProtect(){
-        System.out.println("protect");
-    }
-
-    /**
-     * 引用测试。
-     *
-     * @return
-     */
-    public static Teacher newTeacher() {
-        Teacher teacher = new Teacher();
-        teacher.setAge(1);
-        teacher.setName("teacher1");
-        return teacher;
-    }
-
-    /**
-     * StringBuffer测试。
-     *
-     * @param a
-     * @param b
-     */
-    public static void change(StringBuffer a, StringBuffer b) {
-        a = b;
-        b.append(a);
     }
 
     /**
@@ -171,10 +113,6 @@ public class Algorithm {
 
     public void setHash(Map map) {
         map.put("key", "key");
-    }
-
-    public static void testt(Student stu1) {
-        stu1.setName("静态设置姓名");
     }
 
     public void setName(Student stu) {
@@ -265,44 +203,22 @@ public class Algorithm {
     }
 
     /**
-     * break直接退出当次循环，continue退出当前循环
-     */
-    public static void loopContinueKey() {
-        for (int i = 0; i < 100; i++) {
-            if (i != 5) {
-                continue;
-            } else {
-                System.out.println(i);
-                break;
-            }
-
-        }
-    }
-
-    public void ThreadSleepUtils(){
-        try {
-            TimeUnit.SECONDS.sleep(5);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
      * 巨大数加法器计算，不支持负数，需要特殊处理
+     *
      * @param a
      * @param b
      * @return
      */
-    public static String add(String a,String b){
+    public static String add(String a, String b) {
         //求和后的数字的倒序，反向输出就可以了,先补全前面的0，让a,b同位
-        int len = a.length()>=b.length()?a.length()-b.length():b.length()-a.length();
+        int len = a.length() >= b.length() ? a.length() - b.length() : b.length() - a.length();
 
-        if(a.length()>=b.length()){
-            for(int i = 0 ; i < len ; i++){
+        if (a.length() >= b.length()) {
+            for (int i = 0; i < len; i++) {
                 b = "0".concat(b);
             }
-        }else{
-            for(int i = 0 ; i< len ; i++){
+        } else {
+            for (int i = 0; i < len; i++) {
                 a = "0".concat(a);
             }
         }
@@ -312,12 +228,12 @@ public class Algorithm {
         int extra = 0;
         int sum = 0;
         // a = 9999 b = 9999 len = 4
-        for(int i = 0 ; i <a.length() ; i++){
-            sum = Integer.valueOf(String.valueOf(a.charAt(a.length()-i-1))) + Integer.valueOf(String.valueOf(b.charAt(a.length()-i-1))) + extra;
-            extra = sum>=10?1:0;
-            if(i<a.length()-1){
-                c.append(sum>=10?sum-10:sum);
-            }else{
+        for (int i = 0; i < a.length(); i++) {
+            sum = Integer.valueOf(String.valueOf(a.charAt(a.length() - i - 1))) + Integer.valueOf(String.valueOf(b.charAt(a.length() - i - 1))) + extra;
+            extra = sum >= 10 ? 1 : 0;
+            if (i < a.length() - 1) {
+                c.append(sum >= 10 ? sum - 10 : sum);
+            } else {
                 c.append(new StringBuffer(String.valueOf(sum)).reverse());
             }
             sum = 0;
@@ -327,24 +243,25 @@ public class Algorithm {
 
     /**
      * 大数减法，不支持负数，需要特殊处理
+     *
      * @param a
      * @param b
      * @return
      */
-    public static String subtract(String a,String b){
-        if(a.equals(b)){
+    public static String subtract(String a, String b) {
+        if (a.equals(b)) {
             return "0";
         }
-        boolean flag = max(a,b);
+        boolean flag = max(a, b);
         //求和后的数字的倒序，反向输出就可以了,先补全前面的0，让a,b同位
-        int len = a.length()>=b.length()?a.length()-b.length():b.length()-a.length();
+        int len = a.length() >= b.length() ? a.length() - b.length() : b.length() - a.length();
 
-        if(a.length()>=b.length()){
-            for(int i = 0 ; i < len ; i++){
+        if (a.length() >= b.length()) {
+            for (int i = 0; i < len; i++) {
                 b = "0".concat(b);
             }
-        }else{
-            for(int i = 0 ; i< len ; i++){
+        } else {
+            for (int i = 0; i < len; i++) {
                 a = "0".concat(a);
             }
             String c = a;
@@ -358,36 +275,37 @@ public class Algorithm {
         int sum = 0;
         int len1 = a.length();
         // a = 001234 b = 999999 len1 = 4 maxFlag = true;
-        for(int i = 0 ; i <len1 ; i++){
-            sum = Integer.valueOf(String.valueOf(a.charAt(a.length()-i-1))) - Integer.valueOf(String.valueOf(b.charAt(a.length()-i-1))) + extra;
-            extra = sum<0?-1:0;
-            if(i<a.length()-1){
-                c.append(sum < 0?(sum+10):sum);
-            }else{
-                c.append(sum == 0?"":sum);
+        for (int i = 0; i < len1; i++) {
+            sum = Integer.valueOf(String.valueOf(a.charAt(a.length() - i - 1))) - Integer.valueOf(String.valueOf(b.charAt(a.length() - i - 1))) + extra;
+            extra = sum < 0 ? -1 : 0;
+            if (i < a.length() - 1) {
+                c.append(sum < 0 ? (sum + 10) : sum);
+            } else {
+                c.append(sum == 0 ? "" : sum);
             }
             sum = 0;
         }
         //根据大小决定是否增加负号
-        return flag?c.reverse().toString():"-".concat(c.reverse().toString());
+        return flag ? c.reverse().toString() : "-".concat(c.reverse().toString());
     }
 
     /**
      * 判断a和b的绝对值哪个大,决定是谁减谁
+     *
      * @param a
      * @param b
      * @return
      */
-    public static boolean max(String a,String b){
-        if(a.length()>b.length()){
+    public static boolean max(String a, String b) {
+        if (a.length() > b.length()) {
             return true;
-        }else if(a.length() == b.length()){
-            for(int i = 0 ; i< a.length() ; i++){
-                if(a.charAt(a.length()-i-1)>b.charAt(b.length()-i-1)){
+        } else if (a.length() == b.length()) {
+            for (int i = 0; i < a.length(); i++) {
+                if (a.charAt(a.length() - i - 1) > b.charAt(b.length() - i - 1)) {
                     return true;
                 }
             }
-        }else{
+        } else {
             return false;
         }
         return false;
@@ -397,42 +315,15 @@ public class Algorithm {
     /**
      * stream的各种用法
      */
-    public void testStream(){
-        //        Arrays.asList(new Student(1), new Student(2), new Student(3)).
-//                stream().
-//                filter(entity -> entity.getAge() != 2).
-//                forEach(S -> System.out.println(S.getAge()));
+    public void testStream() {
 
-//        String[] array = { "大雄，男", "静香，女", "胖虎，男" };
-//        Consumer<String> a = s -> System.out.print("测试Consumer");
-//        Consumer<String> b = s -> System.out.println("测试Consumer，姓名："+s.split(",")[0]);
-//        a.andThen(b).accept("大雄，男");
-
-
-        List<Student> list = Arrays.asList(new Student(1), new Student(2),new Student(1),new Student(1));
-        //a
-//        Map<Integer,List<Integer>> map = list.
-//                stream().
-//                collect(Collectors.groupingBy(Student::getAge, Collectors.mapping(Student::getAge, Collectors.toList())));
-//b
-        //Map<Integer, List<Student>> map1 =
-        list.
-                stream().
-                collect(Collectors.groupingBy(s -> s.getAge())).
-                forEach((key, value) -> {
-                    value.forEach(s -> System.out.println("value:" + s + ",key:" + key + ",value:" + s.getAge()));
-                });
-        List<Student> list1 = Arrays.asList(new Student(1), new Student(4),new Student(2),new Student(5));
-
-
-        list1.stream().sorted(Comparator.comparing(Student::getAge)).collect(Collectors.toList()).forEach(student -> System.out.println(student.getAge()));
     }
 
     /**
      * 使用properties类加载属性文件
      */
-    public void inputStreamTest(){
-        InputStream in = MonitorTestDriver.class.getClassLoader().getResourceAsStream("application.yml");
+    public void inputStreamTest() {
+        InputStream in = MonitorTestDriver.class.getClassLoader().getResourceAsStream("config/application.yml");
         InputStream in2 = MonitorTestDriver.class.getClassLoader().getResourceAsStream("sysConfig.properties");
         Properties pro = new Properties();
         Properties pro1 = new Properties();
@@ -443,106 +334,40 @@ public class Algorithm {
             e.printStackTrace();
         }
 //        pro1.stringPropertyNames().stream().forEach(a-> System.out.println(a+":"+pro1.getProperty(a)));
-        pro1.setProperty("ff","嗨啊");
-        System.out.println(MessageFormat.format("nnnnn{0},{1}","one","two"));
+        pro1.setProperty("ff", "嗨啊");
+        System.out.println(MessageFormat.format("nnnnn{0},{1}", "one", "two"));
         System.out.println(pro1.getProperty("ff"));
         System.out.println(pro1.getProperty("path"));
 
         try {
             in.close();
             in2.close();
-        }catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private static int flag = 3;
-    private static Object printLock = new Object();
-    public static void printA() throws InterruptedException {
-        for (int i = 0; i < 10; i++) {
-            synchronized (printLock){
-                while(flag != 3){
-                    printLock.wait();
-                }
-                flag = 1;
-                System.out.print("A");
-                printLock.notifyAll();
-            }
-        }
-    }
-
-    public static void printB()  throws InterruptedException {
-        for (int i = 0; i < 10; i++) {
-            synchronized (printLock){
-                while(flag != 1){
-                    printLock.wait();
-                }
-                flag = 2;
-                System.out.print("B");
-                printLock.notifyAll();
-            }
-        }
-    }
-
-    public static void printC() throws InterruptedException {
-        for (int i = 0; i < 10; i++) {
-            synchronized (printLock){
-                while(flag != 2){
-                    printLock.wait();
-                }
-                flag = 3;
-                System.out.print("C");
-                printLock.notifyAll();
-            }
-        }
-    }
-
-    //flag = 3
-    public static void printAA() throws InterruptedException {
-        for (int i = 0; i < 10; i++) {
-                while(flag != 3){
-                    Thread.sleep(1);
-                }
-                flag = 1;
-                System.out.print("A");
-        }
-    }
-
-    public static void printBB() throws InterruptedException {
-        for (int i = 0; i < 10; i++) {
-            while(flag != 1){
-                Thread.sleep(1);
-            }
-            flag = 2;
-            System.out.print("B");
-        }
-    }
-
-    public static void printCC() throws InterruptedException {
-        for (int i = 0; i < 10; i++) {
-            while(flag != 2){
-                Thread.sleep(1);
-            }
-            flag = 3;
-            System.out.print("C");
-        }
-    }
-
-    static ExecutorService executorService = Executors.newFixedThreadPool(5);
-
     public static void main(String[] args) throws InterruptedException, ExecutionException {
-//        FutureTask task = new FutureTask(new a());
-//        new Thread(task).start();
-//        System.out.println(task.cancel(true));
 
-        loopContinueKey();
+//        Object lock = new Object();
+//        Thread a = new Thread(new printABC("A"));
+//        Thread b = new Thread(new printABC("B"));
+//        Thread c = new Thread(new printABC("C"));
+//        c.start();
+//        Thread.sleep(1000);
+//        b.start();
+//        Thread.sleep(1000);
+//        a.start();
     }
 
-    static class a implements Callable<Integer>{
+
+    static class a implements Callable<Integer> {
         @Override
         public Integer call() throws Exception {
             Thread.sleep(3000);
             return 5;
         }
     }
+
+
 }

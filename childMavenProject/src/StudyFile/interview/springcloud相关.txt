@@ -1,3 +1,0 @@
-zookeeper选举制度
-abcdefedaaa  --
-至少备份一个，如果其中一个挂了就选举一个head

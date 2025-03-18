@@ -4,6 +4,8 @@ import com.ggz.service.TicketService;
 import org.apache.dubbo.config.annotation.DubboService;
 import org.apache.dubbo.config.annotation.Service;
 
+import java.util.concurrent.Executors;
+
 /**
  * @author ggz on 2022/9/19
  */
@@ -14,4 +16,6 @@ public class TicketServiceImpl implements TicketService {
     public String sell() {
         return "sell a ticket!";
     }
+
+
 }

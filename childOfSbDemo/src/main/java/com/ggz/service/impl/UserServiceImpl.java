@@ -1,15 +1,25 @@
 package com.ggz.service.impl;
 
+import com.ggz.pojo.User;
+import com.ggz.mapper.UserMapper;
 import com.ggz.service.UserService;
 import com.ggz.service.UserService2;
-import org.springframework.beans.factory.annotation.Required;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@Transactional(propagation = Propagation.REQUIRED)
-public class UserServiceImpl implements UserService, UserService2 {
+@Transactional(propagation = Propagation.REQUIRED,rollbackFor = {RuntimeException.class,Exception.class})
+public class UserServiceImpl implements UserService
+//        , UserService2
+{
+
+    @Autowired
+    UserMapper userMapper;
+
+    @Autowired
+    UserService2 userService2;
 
     private int a = 0;
 
@@ -21,13 +31,17 @@ public class UserServiceImpl implements UserService, UserService2 {
     }
 
     @Override
-    public void update(String id) {
-        System.out.println(a);
-        a = 1;
-//        System.out.println("update id："+id);
+    public void update(String id) throws Exception {
+        User user = new User("1","1","ggz");
+        userMapper.updateUserByUserInfo(user);
+        userService2.test2(new User("2","2","ggz"));
+        userService2.test2(new User("3","3","ggz"));
+        userService2.test2(new User("4","4","ggz"));
+
+//        throw new Exception("ee");
     }
 
-    @Override
+//    @Override
     public void test2() {
         System.out.println("test id");
     }

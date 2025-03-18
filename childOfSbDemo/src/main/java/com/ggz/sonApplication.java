@@ -7,9 +7,11 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.ServletComponentScan;
+import org.mybatis.spring.annotation.MapperScan;
 
-@SpringBootApplication(exclude= {DataSourceAutoConfiguration.class})
-@ServletComponentScan("com.ggz.servlet")
+//@SpringBootApplication(exclude= {DataSourceAutoConfiguration.class})
+@SpringBootApplication
+@MapperScan("com.ggz.mapper")
 public class sonApplication {
     public static void main(String[] args) {
         new SpringApplication(sonApplication.class).run(args);

@@ -12,6 +12,7 @@ public class ProxyTest {
         System.getProperties().setProperty("sun.misc.ProxyGenerator.saveGeneratedFiles", "true");
 
         UserService userService = new UserServiceImpl();
+//        UserService userService = new UserServiceImpl();
 
         ClassLoader classLoader = userService.getClass().getClassLoader();
 

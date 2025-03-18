@@ -1,4 +1,4 @@
-package com.ggz.entity;
+package com.ggz.pojo;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

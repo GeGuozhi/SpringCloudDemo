@@ -88,4 +88,5 @@ public class Provider1Controller {
     public String dubboTest() {
         return ticketService.sell();
     }
+
 }

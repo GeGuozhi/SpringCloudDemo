@@ -15,8 +15,8 @@
         <module name="go" />
         <module name="dubboProvider" />
         <module name="provider1" />
-        <module name="feign" />
         <module name="oauth2Client" />
+        <module name="feign" />
         <module name="childOfSbDemo" />
         <module name="mainApp" />
       </profile>
@@ -38,6 +38,7 @@
       <module name="parentProject" options="" />
       <module name="provider" options="-parameters" />
       <module name="provider1" options="-parameters" />
+      <module name="springcloud" options="" />
     </option>
   </component>
 </project>

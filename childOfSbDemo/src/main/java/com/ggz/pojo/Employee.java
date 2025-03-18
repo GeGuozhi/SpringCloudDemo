@@ -1,4 +1,4 @@
-package com.ggz.entity;
+package com.ggz.pojo;
 
 public class Employee extends Person {
     public static Integer totalNum = 0; // 员工数

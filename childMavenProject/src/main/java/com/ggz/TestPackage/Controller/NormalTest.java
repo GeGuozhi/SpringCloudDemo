@@ -23,18 +23,21 @@ public class NormalTest {
 //        user1.setName("ggz");
 //        Optional<User> userOptional1 = Optional.ofNullable(user1);
 //        System.out.println(userOptional1.map(User::getName).orElse(""));
-        Date date = new Date(System.currentTimeMillis());
-        try {
-            Thread.sleep(500);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        Date date2 = new Date(System.currentTimeMillis());
+//        Date date = new Date(System.currentTimeMillis());
+//        try {
+//            Thread.sleep(500);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
+//        Date date2 = new Date(System.currentTimeMillis());
+//
+//        System.out.println(date.getTime());
+//        System.out.println(date2.getTime());
+//
+//        System.out.println(date2.before(date));
+//        System.out.println(date.before(date2));
 
-        System.out.println(date.getTime());
-        System.out.println(date2.getTime());
-
-        System.out.println(date2.before(date));
-        System.out.println(date.before(date2));
+        System.out.println("abc".indexOf("a"));
+        System.out.println("abc".indexOf("d"));
     }
 }
