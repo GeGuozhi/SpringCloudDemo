@@ -17,10 +17,10 @@
     <module>oauthServer</module>
     <module>oauth2Client</module>
     <module>childOfSbDemo</module>
-      <module>go</module>
     <module>dubboProvider</module>
-      <module>dubboConsumer</module>
-      <!--    <module>rabbitmq</module>-->
+    <module>dubboConsumer</module>
+    <module>configServer</module>
+    <!--    <module>rabbitmq</module>-->
   </modules>
 
   <name>parentProject</name>
@@ -64,7 +64,7 @@
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>4.11</version>
-      <scope>test</scope>
+<!--      <scope>test</scope>-->
     </dependency>
 
       <dependency>
@@ -173,12 +173,6 @@
       <groupId>cglib</groupId>
       <artifactId>cglib</artifactId>
       <version>2.2.2</version>
-    </dependency>
-
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.11</version>
     </dependency>
 
     <dependency>

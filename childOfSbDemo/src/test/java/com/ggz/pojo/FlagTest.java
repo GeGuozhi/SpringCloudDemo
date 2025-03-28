@@ -1,5 +1,6 @@
 package com.ggz.pojo;
 
-class FlagTest {
+import org.junit.Test;
 
+class FlagTest {
 }

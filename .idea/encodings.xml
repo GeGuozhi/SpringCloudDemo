@@ -5,6 +5,7 @@
     <file url="file://$PROJECT_DIR$/childMavenProject" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/childMavenProject/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/childOfSbDemo/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/configServer/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/dubboConsumer/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/dubboProvider/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/eurekaserver" charset="UTF-8" />

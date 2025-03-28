@@ -5,6 +5,9 @@ import cn.hutool.core.util.NetUtil;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.cloud.netflix.eureka.server.EnableEurekaServer;
+import org.springframework.jdbc.support.incrementer.AbstractDataFieldMaxValueIncrementer;
+import org.springframework.jdbc.support.incrementer.DataFieldMaxValueIncrementer;
+import org.springframework.jdbc.support.incrementer.MySQLMaxValueIncrementer;
 
 /**
  * @author guozhi.ge
@@ -21,6 +24,10 @@ public class EurekaServerApplication {
             System.err.printf("端口%d被占用了，无法启动%n", port);
             System.exit(1);
         }
+
+        DataFieldMaxValueIncrementer data = new MySQLMaxValueIncrementer();
+        data.nextLongValue();
+
         new SpringApplicationBuilder(EurekaServerApplication.class).properties("server.port=" + port).run(args);
     }
 }

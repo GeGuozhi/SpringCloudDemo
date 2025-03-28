@@ -108,7 +108,6 @@ redo log也是要存储到磁盘，为什么不直接将buffer pool的数据存�
 
 explain
 
-
 间隙锁：
 作用：mysql增加间隙锁是为了解决，幻读
 关闭间隙锁的RR 退化为 RC
