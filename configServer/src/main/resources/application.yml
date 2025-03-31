@@ -8,6 +8,11 @@ spring:
         git:
           uri: https://github.com/how2j/springcloudConfig
           searchPaths: respo
+          proxy:
+            host: 127.0.0.1
+            port: 26673
+            nonProxyHosts: localhost
+          timeout: 60
 eureka:
   client:
     serviceUrl:
