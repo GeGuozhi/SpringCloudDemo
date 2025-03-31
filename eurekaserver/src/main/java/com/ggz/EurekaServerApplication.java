@@ -25,8 +25,8 @@ public class EurekaServerApplication {
             System.exit(1);
         }
 
-        DataFieldMaxValueIncrementer data = new MySQLMaxValueIncrementer();
-        data.nextLongValue();
+//        DataFieldMaxValueIncrementer data = new MySQLMaxValueIncrementer();
+//        data.nextLongValue();
 
         new SpringApplicationBuilder(EurekaServerApplication.class).properties("server.port=" + port).run(args);
     }
