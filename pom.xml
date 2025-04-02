@@ -9,7 +9,7 @@
   <version>1.0-SNAPSHOT</version>
   <modules>
     <module>childMavenProject</module>
-    <module>eurekaserver</module>
+    <module>eurekaServer</module>
     <module>provider1</module>
     <module>mainApp</module>
     <module>feign</module>
@@ -20,6 +20,7 @@
     <module>dubboProvider</module>
     <module>dubboConsumer</module>
     <module>configServer</module>
+    <module>configClient</module>
     <!--    <module>rabbitmq</module>-->
   </modules>
 
@@ -64,7 +65,8 @@
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>4.11</version>
-<!--      <scope>test</scope>-->
+      <!--设置为test就只能在test目录下生效，src目录会报错-->
+      <!--<scope>test</scope>-->
     </dependency>
 
       <dependency>

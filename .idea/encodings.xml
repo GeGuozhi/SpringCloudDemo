@@ -5,11 +5,13 @@
     <file url="file://$PROJECT_DIR$/childMavenProject" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/childMavenProject/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/childOfSbDemo/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/configClient/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/configServer/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/configServer/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/dubboConsumer/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/dubboProvider/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/eurekaserver" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/eurekaserver/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/eurekaServer" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/eurekaServer/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/feign/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/go/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/go/src/main/resources" charset="UTF-8" />

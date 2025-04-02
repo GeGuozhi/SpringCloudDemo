@@ -42,7 +42,7 @@ public class RedisTest {
 //        System.out.println(set.iterator().next().getAge());
 
         int port = 0;
-        int defaultPort = 8001;
+//        int defaultPort = 8001;
 //        Future<Integer> future = ThreadUtil.execAsync(() -> {
 //            int p = 0;
 //            System.out.println("请于5秒钟内输入端口号, 推荐  8001 、 8002  或者  8003，超过5秒将默认使用 " + defaultPort);

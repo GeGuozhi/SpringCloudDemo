@@ -12,8 +12,7 @@
     <artifactId>childOfSbDemo</artifactId>
 
     <name>childOfSbDemo</name>
-    <!-- FIXME change it to the project's website -->
-    <url>http://www.example.com</url>
+    <url>http://127.0.0.1:8080</url>
 
     <properties>
         <java.version>1.8</java.version>

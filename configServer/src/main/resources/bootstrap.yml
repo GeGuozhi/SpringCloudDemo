@@ -1,0 +1,24 @@
+spring:
+  profiles:
+    active: dev
+  application:
+    name: config-server
+  cloud:
+    config:
+      label: newBranch
+      server:
+        git:
+          uri: https://gitee.com/fzggz/springcloud
+          searchPaths: spring-cloud-config-file
+          timeout: 60
+          username: 14702954341
+          password: gitee9527...ggz
+          default-label: newBranch
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+bobo:
+  user:
+    name: bobo
+    age: 18

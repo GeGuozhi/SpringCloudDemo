@@ -7,18 +7,19 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="eurekaserver" />
         <module name="oauthServer" />
         <module name="childMavenProject" />
         <module name="dubboConsumer" />
+        <module name="configClient" />
+        <module name="eurekaServer" />
+        <module name="oauth2Client" />
+        <module name="mainApp" />
         <module name="provider" />
         <module name="configServer" />
         <module name="provider1" />
         <module name="dubboProvider" />
-        <module name="oauth2Client" />
         <module name="feign" />
         <module name="childOfSbDemo" />
-        <module name="mainApp" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel target="8">
@@ -29,10 +30,11 @@
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="childMavenProject" options="-parameters" />
       <module name="childOfSbDemo" options="-parameters" />
+      <module name="configClient" options="-parameters" />
       <module name="configServer" options="-parameters" />
       <module name="dubboConsumer" options="-parameters" />
       <module name="dubboProvider" options="-parameters" />
-      <module name="eurekaserver" options="-parameters" />
+      <module name="eurekaServer" options="-parameters" />
       <module name="feign" options="-parameters" />
       <module name="go" options="" />
       <module name="mainApp" options="-parameters" />

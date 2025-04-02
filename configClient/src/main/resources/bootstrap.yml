@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: config-client
+  cloud:
+    config:
+      uri: http://127.0.0.1:8030  # 直接连接 Config-Server
+      profile: prod
+      label: newBranch2
+      discovery:
+        enabled: false
+#        enabled: true
+#        service-id: config-server
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
