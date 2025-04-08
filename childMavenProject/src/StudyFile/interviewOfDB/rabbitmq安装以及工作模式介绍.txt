@@ -37,7 +37,7 @@ rabbitmqctl list_users
 
 systemctl status firewalld
 
-service  iptables status
+service iptables status
 
 2:暂时关闭防火墙
 

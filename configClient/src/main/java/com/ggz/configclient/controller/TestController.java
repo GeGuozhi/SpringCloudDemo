@@ -5,6 +5,10 @@ import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.AbstractList;
+
+import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
+
 /**
  * @author ggz on 2025/4/1
  */
@@ -19,4 +23,5 @@ public class TestController {
     public String version() {
         return version;
     }
+
 }

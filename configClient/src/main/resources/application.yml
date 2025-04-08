@@ -2,3 +2,12 @@ logging:
   level:
     org.springframework.cloud: DEBUG
     com.netflix.discovery: DEBUG
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+      cors:
+        allowed-origins: "*"
+        allowed-methods: "*"

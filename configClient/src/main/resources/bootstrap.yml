@@ -4,12 +4,21 @@ spring:
   cloud:
     config:
       uri: http://127.0.0.1:8030  # 直接连接 Config-Server
-      profile: prod
-      label: newBranch2
+      profile: dev
+      label: newBranch3
       discovery:
         enabled: false
 #        enabled: true
 #        service-id: config-server
+    bus:
+      enabled: true
+      trace:
+        enabled: true
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
 eureka:
   client:
     serviceUrl:
