@@ -1,8 +1,5 @@
 package com.ggz.childMavenProject;
 
-
-import com.sun.istack.internal.NotNull;
-
 import java.io.Serializable;
 
 public class Student implements Serializable,Comparable<Student> {
@@ -78,7 +75,7 @@ public class Student implements Serializable,Comparable<Student> {
     }
 
     @Override
-    public int compareTo(@NotNull Student o) {
+    public int compareTo( Student o) {
         return this.age - o.age;
     }
 

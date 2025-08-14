@@ -9,17 +9,37 @@ public class User implements Serializable {
     public String passWord;
     public String userName;
     public User user;
+    public Integer age;
 
-    public User(){
+    public User() {
 
     }
 
-    public User(String id, String passWord, String userName){
-        User user = new User();
-        user.id = id;
-        user.passWord = passWord;
-        user.userName = userName;
-        this.user = user;
+    public User(String s, String s1, String ggz) {
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getPassWord() {
+        return passWord;
+    }
+
+    public void setPassWord(String passWord) {
+        this.passWord = passWord;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 
     public User getUser() {
@@ -30,30 +50,18 @@ public class User implements Serializable {
         this.user = user;
     }
 
-    public String getId() {
-        return user.id;
+    public Integer getAge() {
+        return age;
     }
 
-    public User setId(String id) {
-        user.id = id;
-        return user;
+    public void setAge(Integer age) {
+        this.age = age;
     }
 
-    public String getPassWord() {
-        return user.passWord;
-    }
-
-    public User setPassWord(String passWord) {
-        user.passWord = passWord;
-        return user;
-    }
-
-    public String getUserName() {
-        return user.userName;
-    }
-
-    public User setUserName(String userName) {
+    public User(String userName, int age){
+        User user = new User();
         user.userName = userName;
-        return user;
+        user.age = age;
+        this.user = user;
     }
 }
