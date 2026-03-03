@@ -26,5 +26,10 @@ eureka:
 server:
   port: 8004
 
-
+# 日志配置
+logging:
+  level:
+    com.ggz.component: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
 

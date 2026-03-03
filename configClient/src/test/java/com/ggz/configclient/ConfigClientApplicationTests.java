@@ -3,7 +3,6 @@ package com.ggz.configclient;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.ggz.configclient.service.TestService;
 import org.junit.jupiter.api.Test;
 import org.mockito.Answers;
 import org.mockito.Mock;
@@ -21,9 +20,6 @@ import java.util.stream.Stream;
 
 @MockitoSettings(strictness = Strictness.LENIENT)
 class ConfigClientApplicationTests {
-
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
-    private TestService testService;
 
     @Test
     void test() throws ExecutionException, InterruptedException {

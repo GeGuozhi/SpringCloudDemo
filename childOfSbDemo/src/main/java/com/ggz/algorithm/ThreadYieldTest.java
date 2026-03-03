@@ -3,6 +3,8 @@ package com.ggz.algorithm;
 import com.ggz.pojo.AbstractLife;
 import com.ggz.pojo.People;
 import com.ggz.pojo.Person;
+import com.ggz.service.impl.Holiday;
+import com.google.common.collect.Lists;
 import lombok.SneakyThrows;
 import org.junit.Test;
 
@@ -19,7 +21,7 @@ public class ThreadYieldTest {
 
     static ExecutorService executorService = Executors.newFixedThreadPool(5);
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
 //        counter();
 
 //        AbstractLife abstractLife = new People();
@@ -28,8 +30,11 @@ public class ThreadYieldTest {
 //        Date date = new Date();
 
 //        serialize();
-        deserialize("D:\\gitProject\\springcloud\\childOfSbDemo\\src\\main\\java\\com\\ggz\\algorithm\\1.txt");
+//        deserialize("D:\\gitProject\\springcloud\\childOfSbDemo\\src\\main\\java\\com\\ggz\\algorithm\\1.txt");
 
+        Holiday a = new Holiday("aaa");
+        Holiday b = new Holiday("aaa");
+        System.out.println(Lists.newArrayList(a).equals(Lists.newArrayList(b)));
     }
 
     @Test

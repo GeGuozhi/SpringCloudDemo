@@ -16,7 +16,7 @@ public class FreshConfigUtil{
         /**
          * 调用config-client服务的actuator/bus-refresh请求，即可从config-server把新的配置刷新到config-client中
          */
-        String result = HttpUtil.createPost("http://localhost:8031/actuator/bus-refresh").addHeaders(headers).execute().body();
+        String result = HttpUtil.createPost("http://localhost:8041/actuator/bus-refresh").addHeaders(headers).execute().body();
         System.out.println("result:"+result);
         System.out.println("refresh 完成");
     }

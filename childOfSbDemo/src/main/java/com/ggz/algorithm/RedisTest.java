@@ -2,7 +2,7 @@ package com.ggz.algorithm;
 
 import cn.hutool.core.convert.Convert;
 import cn.hutool.core.thread.ThreadUtil;
-import cn.hutool.core.util.NetUtil;
+import cn.hutool.core.net.NetUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.URLUtil;
 import com.ggz.childMavenProject.Student;

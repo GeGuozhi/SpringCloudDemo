@@ -1,3 +1,2 @@
-bobo:
-  user:
-    age: dev-25
+server:
+  port: 8031

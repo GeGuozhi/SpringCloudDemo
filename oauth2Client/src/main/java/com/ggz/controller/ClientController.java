@@ -1,39 +1,59 @@
 package com.ggz.controller;
 
-import org.springframework.http.HttpRequest;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.oauth2.provider.authentication.OAuth2AuthenticationDetails;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletRequest;
+import java.util.Map;
 
 @RestController
 public class ClientController {
-    @GetMapping(value = "get")
-    @PreAuthorize("hasRole('ROLE_USER')")
+
+    @PostMapping(value = "get")
+    @PreAuthorize("hasRole('USER')") // 注意：不需要写 ROLE_ 前缀，Spring会自动添加
     public Object get(Authentication authentication) {
-        authentication.getCredentials();
-        OAuth2AuthenticationDetails details = (OAuth2AuthenticationDetails) authentication.getDetails();
+        if (authentication instanceof JwtAuthenticationToken) {
+            JwtAuthenticationToken jwtToken = (JwtAuthenticationToken) authentication;
 
-        System.out.println(authentication.getAuthorities());
-        String detail = details.getTokenValue();
-        System.out.println("remoteAddress:" + details.getRemoteAddress());
-        System.out.println("sessionId:" + details.getSessionId());
-        System.out.println("tokenType:" + details.getTokenType());
-        return detail;
+            // 获取JWT令牌信息
+            String tokenValue = jwtToken.getToken().getTokenValue();
+            Map<String, Object> claims = jwtToken.getToken().getClaims();
+
+            System.out.println("Authorities: " + authentication.getAuthorities());
+            System.out.println("Token claims: " + claims);
+            System.out.println("Username: " + authentication.getName());
+
+            return Map.of(
+                    "token", tokenValue.substring(0, 50) + "...", // 只返回部分token
+                    "username", authentication.getName(),
+                    "authorities", authentication.getAuthorities(),
+                    "claims", claims
+            );
+        }
+
+        return Map.of("error", "Invalid authentication type");
     }
 
-    @GetMapping(value = "admin")
-    @PreAuthorize("hasAuthority('ADMIN')")
-    public Object ADMIN(Authentication authentication) {
-        return "user1_admin";
+    @PostMapping(value = "admin")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')") // 使用 hasAuthority 需要完整权限名称
+    public Object admin(Authentication authentication) {
+        return Map.of(
+                "message", "admin access granted",
+                "user", authentication.getName(),
+                "authorities", authentication.getAuthorities()
+        );
     }
 
-    @GetMapping("admin1")
-    @PreAuthorize("hasAuthority('ADMIN1')")
-    public String ADMIN2(HttpServletRequest request) {
-        return "user2_admin1";
+    @PostMapping("admin1")
+    @PreAuthorize("hasAuthority('ADMIN1')") // 没有 ROLE_ 前缀
+    public String admin2(Authentication authentication) {
+        return "user2_admin1 - accessed by: " + authentication.getName();
+    }
+
+    @PostMapping("public")
+    public String publicEndpoint() {
+        return "This is a public endpoint";
     }
 }

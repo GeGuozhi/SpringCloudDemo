@@ -1,7 +1,7 @@
 package com.ggz.Controller;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -16,7 +16,7 @@ public class ProviderController {
     @Value("${server.port}")
     String port;
 
-    @GetMapping("providerNumberOne")
+    @PostMapping("providerNumberOne")
     public String provider() {
         return port;
     }

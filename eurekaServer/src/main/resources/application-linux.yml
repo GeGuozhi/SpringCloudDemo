@@ -1,0 +1,33 @@
+# Linux环境配置
+server:
+  port: 8761
+
+eureka:
+  instance:
+    hostname: ${EUREKA_HOSTNAME:192.168.157.129}
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${server.port}
+  client:
+    register-with-eureka: false
+    fetch-registry: true
+    service-url:
+      defaultZone: http://192.168.157.129:8761/eureka/
+  server:
+    enable-self-preservation: false
+    eviction-interval-timer-in-ms: 1000
+
+spring:
+  application:
+    name: eureka-server-linux
+  cloud:
+    inetutils:
+      preferred-networks: 192.168.157
+
+logging:
+  level:
+    com.netflix: WARN
+    org.springframework.cloud: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n"
+  file:
+    name: /var/log/eureka-server/eureka-server.log

@@ -2,12 +2,44 @@ logging:
   level:
     org.springframework.cloud: DEBUG
     com.netflix.discovery: DEBUG
+    org.springframework.cloud.config: TRACE  # 添加TRACE级别日志
+    com.ggz.configclient: DEBUG
 
 management:
   endpoints:
     web:
       exposure:
         include: "*"
-      cors:
-        allowed-origins: "*"
-        allowed-methods: "*"
+  endpoint:
+    refresh:
+      enabled: true
+    health:
+      enabled: true
+
+server:
+  port: 8040
+
+spring:
+  application:
+    name: config-client
+
+  profiles:
+    active: dev
+
+  config:
+    import: "optional:configserver:"
+      # 启用配置变更监控
+
+  cloud:
+    config:
+      profile: dev
+      label: newBranch2
+      discovery:
+        enabled: true
+        service-id: config-server
+      uri: localhost:8031
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/

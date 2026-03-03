@@ -10,6 +10,7 @@
         <module name="oauthServer" />
         <module name="childMavenProject" />
         <module name="dubboConsumer" />
+        <module name="chatService" />
         <module name="configClient" />
         <module name="eurekaServer" />
         <module name="oauth2Client" />
@@ -22,12 +23,11 @@
         <module name="childOfSbDemo" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel target="8">
-      <module name="go" target="1.7" />
-    </bytecodeTargetLevel>
+    <bytecodeTargetLevel target="11" />
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="chatService" options="-parameters" />
       <module name="childMavenProject" options="-parameters" />
       <module name="childOfSbDemo" options="-parameters" />
       <module name="configClient" options="-parameters" />
@@ -36,7 +36,6 @@
       <module name="dubboProvider" options="-parameters" />
       <module name="eurekaServer" options="-parameters" />
       <module name="feign" options="-parameters" />
-      <module name="go" options="" />
       <module name="mainApp" options="-parameters" />
       <module name="oauth2Client" options="-parameters" />
       <module name="oauthServer" options="-parameters" />

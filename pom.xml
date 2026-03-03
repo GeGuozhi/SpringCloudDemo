@@ -1,12 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+         http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-
   <groupId>com.ggz</groupId>
   <artifactId>parentProject</artifactId>
   <version>1.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
+
   <modules>
     <module>childMavenProject</module>
     <module>eurekaServer</module>
@@ -21,27 +24,33 @@
     <module>dubboConsumer</module>
     <module>configServer</module>
     <module>configClient</module>
-    <!--    <module>rabbitmq</module>-->
+    <module>chatService</module>
   </modules>
-
-  <name>parentProject</name>
-  <!-- FIXME change it to the project's website -->
-  <url>http://www.example.com</url>
-  <description>parentMavenProject</description>
-  <packaging>pom</packaging>
-
 
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>2.3.0.RELEASE</version>
+    <version>2.7.18</version>
     <relativePath/>
   </parent>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <java.version>1.8</java.version>
-    <spring-cloud.version>Hoxton.SR4</spring-cloud.version>
+    <java.version>11</java.version>
+    <maven.compiler.source>11</maven.compiler.source>
+    <maven.compiler.target>11</maven.compiler.target>
+    <spring-cloud.version>2021.0.9</spring-cloud.version>
+
+    <!-- 修复缺失依赖的版本 -->
+    <spring-security-oauth2.version>0.4.4</spring-security-oauth2.version>
+    <mysql-connector.version>8.0.33</mysql-connector.version>
+    <lombok.version>1.18.30</lombok.version>
+    <fastjson.version>1.2.83</fastjson.version>
+    <junit.version>4.13.2</junit.version>
+    <hutool.version>5.8.26</hutool.version>
+    <guava.version>31.1-jre</guava.version>
+    <jsr305.version>3.0.2</jsr305.version>
+    <cglib.version>3.3.0</cglib.version>
   </properties>
 
 
@@ -63,22 +72,16 @@
     <dependency>
       <groupId>com.alibaba</groupId>
       <artifactId>fastjson</artifactId>
-      <version>1.2.70</version>
+      <version>1.2.83</version>
     </dependency>
 
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>4.11</version>
+      <version>4.13.2</version>
       <!--设置为test就只能在test目录下生效，src目录会报错-->
       <!--<scope>test</scope>-->
     </dependency>
-
-      <dependency>
-          <groupId>cn.hutool</groupId>
-          <artifactId>hutool-all</artifactId>
-          <version>4.3.1</version>
-      </dependency>
 
     <dependency>
       <groupId>org.springframework.boot</groupId>
@@ -99,6 +102,11 @@
 
     <dependency>
       <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
       <scope>test</scope>
       <exclusions>
@@ -107,13 +115,6 @@
           <artifactId>junit-vintage-engine</artifactId>
         </exclusion>
       </exclusions>
-    </dependency>
-
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-web</artifactId>
-      <version>RELEASE</version>
-      <scope>compile</scope>
     </dependency>
 
     <dependency>
@@ -131,6 +132,7 @@
         </exclusion>
       </exclusions>
     </dependency>
+
     <dependency>
       <groupId>redis.clients</groupId>
       <artifactId>jedis</artifactId>
@@ -160,13 +162,13 @@
     <dependency>
       <groupId>cn.hutool</groupId>
       <artifactId>hutool-all</artifactId>
-      <version>4.3.1</version>
+      <version>5.8.26</version> <!-- 使用最新稳定版 -->
     </dependency>
 
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
-      <version>18.0</version>
+      <version>31.1-jre</version>
     </dependency>
 
     <!-- https://mvnrepository.com/artifact/com.google.code.findbugs/jsr305 -->
@@ -179,14 +181,7 @@
     <dependency>
       <groupId>cglib</groupId>
       <artifactId>cglib</artifactId>
-      <version>2.2.2</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.jetbrains</groupId>
-      <artifactId>annotations</artifactId>
-      <version>RELEASE</version>
-      <scope>compile</scope>
+      <version>3.3.0</version>
     </dependency>
 
   </dependencies>
@@ -201,63 +196,18 @@
         <type>pom</type>
         <scope>import</scope>
       </dependency>
+
+      <!-- 添加缺失依赖管理 -->
+      <dependency>
+        <groupId>org.springframework.security</groupId>
+        <artifactId>spring-security-oauth2-authorization-server</artifactId>
+        <version>${spring-security-oauth2.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>mysql</groupId>
+        <artifactId>mysql-connector-java</artifactId>
+        <version>${mysql-connector.version}</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
-
-  <build>
-    <pluginManagement><!-- lock down plugins versions to avoid using Maven defaults (may be moved to parent pom) -->
-      <plugins>
-        <!-- clean lifecycle, see https://maven.apache.org/ref/current/maven-core/lifecycles.html#clean_Lifecycle -->
-        <plugin>
-          <artifactId>maven-clean-plugin</artifactId>
-          <version>3.1.0</version>
-        </plugin>
-        <!-- default lifecycle, jar packaging: see https://maven.apache.org/ref/current/maven-core/default-bindings.html#Plugin_bindings_for_jar_packaging -->
-        <plugin>
-          <artifactId>maven-resources-plugin</artifactId>
-          <version>3.0.2</version>
-        </plugin>
-        <plugin>
-          <artifactId>maven-compiler-plugin</artifactId>
-          <version>3.8.0</version>
-        </plugin>
-        <plugin>
-          <artifactId>maven-surefire-plugin</artifactId>
-          <version>2.22.1</version>
-        </plugin>
-        <plugin>
-          <artifactId>maven-jar-plugin</artifactId>
-          <version>3.0.2</version>
-        </plugin>
-        <plugin>
-          <artifactId>maven-install-plugin</artifactId>
-          <version>2.5.2</version>
-        </plugin>
-        <plugin>
-          <artifactId>maven-deploy-plugin</artifactId>
-          <version>2.8.2</version>
-        </plugin>
-        <!-- site lifecycle, see https://maven.apache.org/ref/current/maven-core/lifecycles.html#site_Lifecycle -->
-        <plugin>
-          <artifactId>maven-site-plugin</artifactId>
-          <version>3.7.1</version>
-        </plugin>
-        <!--                <plugin>-->
-        <!--                    <artifactId>maven-project-info-reports-plugin</artifactId>-->
-        <!--                    <version>3.0.0</version>-->
-        <!--                </plugin>-->
-      </plugins>
-    </pluginManagement>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.8.1</version>
-        <configuration>
-          <source>8</source>
-          <target>8</target>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
 </project>

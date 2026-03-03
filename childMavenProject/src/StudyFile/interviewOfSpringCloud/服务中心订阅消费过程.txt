@@ -34,7 +34,7 @@ openFeign（open Fei）
 @FeignClient("provider1")
 public interface OpenFeignClient {
 
-    @GetMapping("/serviceNumberOne/providerNumberOne")
+    @PostMapping("/serviceNumberOne/providerNumberOne")
     public String getPort();
 
 

@@ -30,18 +30,29 @@ server:
   port: 8006
   forward-headers-strategy: native
 
-security:
-  oauth2:
-    client:
-      client-id: client_1
-      client-secret: 123456
-      user-authorization-uri: http://localhost:8888/oauth/authorize
-      access-token-uri: http://localhost:8888/oauth/token
-    resource:
-      id: user-client
-      user-info-uri: user-info
-    authorization:
-      check-token-access: http://localhost:8888/oauth/check_token
+# OAuth2 Resource Server配置（新版本）
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8888
+          # 如果使用自签名证书，可以禁用SSL验证
+          # jwk-set-uri: http://localhost:8888/.well-known/jwks.json
+
+# 旧的OAuth2配置（已废弃，保留用于参考）
+# security:
+#   oauth2:
+#     client:
+#       client-id: client_1
+#       client-secret: 123456
+#       user-authorization-uri: http://localhost:8888/oauth/authorize
+#       access-token-uri: http://localhost:8888/oauth/token
+#     resource:
+#       id: user-client
+#       user-info-uri: user-info
+#     authorization:
+#       check-token-access: http://localhost:8888/oauth/check_token
 
 management:
   endpoint:

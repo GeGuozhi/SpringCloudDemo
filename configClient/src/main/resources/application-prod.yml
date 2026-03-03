@@ -1,0 +1,6 @@
+bobo:
+  user:
+    age: prod-25
+
+server:
+  port: 8042

@@ -1,5 +1,9 @@
 package SwordToOffer;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.math.BigDecimal;
 import java.util.*;
 
@@ -12,7 +16,7 @@ public class LeetCode {
 
     TreeNode treeNode;
 
-    public static void main(String[] args) {
+    public static void main(String[] args){
         LeetCode leetCode = new LeetCode();
 //        int[] preorder = new int[]{3, 9, 20, 15, 7};
 //        int[] inorder = new int[]{9, 3, 15, 20, 7};
@@ -123,18 +127,28 @@ public class LeetCode {
 //        leetCode.bfs(a);
 
 
-        leetCode.findMinDifference(Arrays.asList("23:59","00:00"));
+//        leetCode.findMinDifference(Arrays.asList("23:59","00:00"));
+//
+//        List<String> a = Arrays.asList("BOND_A","BOND_T");
+//        int[] aa = new int[]{1,2};
+//
+////        leetCode.changeOfFlushFlow();
+//
+//        System.out.println(" a ".trim());
+//
+//        String str = "abc";
+//        System.out.println(str.replace("a","b"));
+//        System.out.println(str);
 
-        List<String> a = Arrays.asList("BOND_A","BOND_T");
-        int[] aa = new int[]{1,2};
-
-//        leetCode.changeOfFlushFlow();
-
-        System.out.println(" a ".trim());
-
-        String str = "abc";
-        System.out.println(str.replace("a","b"));
-        System.out.println(str);
+        String json = "[{\"type\":\"1\"}]";
+        ObjectMapper objectMapper = new ObjectMapper();
+        List<Map<String,Object>> list = null;
+        try {
+            list = objectMapper.readValue(json, new TypeReference<List<Map<String, Object>>>() {});
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        System.out.println(list);
     }
 
 

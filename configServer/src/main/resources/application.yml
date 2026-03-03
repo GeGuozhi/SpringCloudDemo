@@ -1,3 +1,21 @@
-bobo:
-  user:
-    age: origin-25
+spring:
+  application:
+    name: config-server
+  profiles:
+    active: dev
+  cloud:
+    config:
+      server:
+        git:
+          uri: https://gitee.com/fzggz/springcloud
+          searchPaths: spring-cloud-config-file
+
+server:
+  port: 8030
+
+# 日志配置
+logging:
+  level:
+    org.springframework.cloud.config: DEBUG
+    org.springframework.boot.context.config: DEBUG
+    com.ggz.configserver: DEBUG

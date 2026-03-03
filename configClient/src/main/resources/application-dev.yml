@@ -1,0 +1,7 @@
+bobo:
+  user:
+    name: bobo-dev
+    age: 18-dev
+
+server:
+  port: 8041

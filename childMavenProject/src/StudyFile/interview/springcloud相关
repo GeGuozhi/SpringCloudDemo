@@ -1,0 +1,7 @@
+SpringCloudConfig
+1.springBoot配置加载顺序
+    bootstrap.yml->应用配置服务器（远程）->application.yml->application-{profile}.yml
+    bootstrap.yml只用于配置ConfigServer本身，不能用于应用的业务配置，应用配置应该写在application.yml
+    @Value注解：在应用上下文初始化时解析，此时无法访问bootstrap上下文中的配置
+    bootstrap被弃用
+2.

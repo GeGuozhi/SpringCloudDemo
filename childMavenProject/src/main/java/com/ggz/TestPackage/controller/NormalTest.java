@@ -1,6 +1,5 @@
 package com.ggz.TestPackage.controller;
 
-import com.ggz.TestPackage.model.Student;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Assert;
 

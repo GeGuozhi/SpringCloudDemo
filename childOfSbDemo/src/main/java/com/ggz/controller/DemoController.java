@@ -26,7 +26,7 @@ public class DemoController {
     }
 //    private UserServiceImpl2 userServiceImpl2;
 
-    @GetMapping("test")
+    @PostMapping("test")
     public String test() throws Exception {
         System.out.println("111");
         userService.select("abc");
@@ -58,12 +58,12 @@ public class DemoController {
     }
 
 
-    @GetMapping("/profile")
+    @PostMapping("/profile")
     public String profileTest() {
         return testProfileService.print();
     }
 
-    @GetMapping("updateUser")
+    @PostMapping("updateUser")
     public String updateUser() throws Exception {
         userService.update("1");
         return "sucdess";
