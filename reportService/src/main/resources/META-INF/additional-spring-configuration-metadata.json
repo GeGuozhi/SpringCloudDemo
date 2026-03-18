@@ -1,0 +1,8 @@
+{
+  "properties": [
+    {
+      "name": "spring.fastjson2.converter.supported-media-types",
+      "type": "java.lang.String",
+      "description": "Description for spring.fastjson2.converter.supported-media-types."
+  }
+] }

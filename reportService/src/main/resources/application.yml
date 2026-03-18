@@ -1,0 +1,47 @@
+spring:
+  datasource:
+    dynamic:
+      primary: dwsdb
+      strict: true
+      datasource:
+        # MySQL：业务查询库（所有维度/指标查询都在这里）
+        dwsdb:
+          driver-class-name: com.mysql.cj.jdbc.Driver
+          url: jdbc:mysql://localhost:3306/finance_report?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+          username: root
+          password: Mm123456
+          type: com.alibaba.druid.pool.DruidDataSource
+          druid:
+            initial-size: 5
+            min-idle: 5
+            max-active: 20
+            max-wait: 60000
+            validation-query: SELECT 1
+            test-while-idle: true
+            test-on-borrow: false
+            test-on-return: false
+        # PostgreSQL：模板配置库（report_config 表）
+        pgidx:
+          driver-class-name: org.postgresql.Driver
+          url: jdbc:postgresql://localhost:5432/postgres
+          username: postgres
+          password: postgres
+          type: com.alibaba.druid.pool.DruidDataSource
+          druid:
+            initial-size: 2
+            min-idle: 2
+            max-active: 10
+            max-wait: 60000
+            validation-query: SELECT 1
+            test-while-idle: true
+            test-on-borrow: false
+            test-on-return: false
+
+  # 告诉 Spring Boot 始终执行 schema.sql (默认行为通常是 embedded 数据库才执行，MySQL 需要显式开启或模式设置)
+  sql:
+    init:
+      mode: always
+      # 如果上面的 mode 不起作用，尝试添加 platform: mysql (文件名变为 schema-mysql.sql)
+
+mybatis-plus:
+  mapper-locations: classpath*:mapper/**/*.xml,classpath*:com/finance/mapper/**/*.xml

@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>导出测试</title>
+  <style>
+    :root { --bg:#0b1020; --card:#121a33; --text:#e9eeff; --muted:#a9b4dd; --accent:#6ea8fe; --border:#263156; }
+    body { margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "PingFang SC", "Microsoft YaHei", sans-serif; background: radial-gradient(1200px 600px at 10% 10%, #18224a 0%, var(--bg) 55%); color:var(--text); }
+    .wrap { max-width: 860px; margin: 48px auto; padding: 0 18px; }
+    .card { background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03)); border:1px solid var(--border); border-radius: 16px; padding: 22px; box-shadow: 0 18px 45px rgba(0,0,0,0.35); }
+    h1 { margin: 0 0 6px; font-size: 20px; letter-spacing: .5px;}
+    .sub { margin: 0 0 18px; color: var(--muted); font-size: 13px; line-height: 1.5; }
+    .grid { display:grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .field { display:flex; flex-direction:column; gap: 6px; }
+    label { font-size: 12px; color: var(--muted); }
+    input { height: 40px; padding: 0 12px; border-radius: 10px; border:1px solid var(--border); background: rgba(0,0,0,0.22); color: var(--text); outline: none; }
+    input:focus { border-color: rgba(110,168,254,0.9); box-shadow: 0 0 0 4px rgba(110,168,254,0.18); }
+    .full { grid-column: 1 / -1; }
+    .row { display:flex; gap: 10px; align-items:center; margin-top: 14px; flex-wrap: wrap; }
+    button { height: 40px; padding: 0 14px; border-radius: 10px; border:1px solid rgba(110,168,254,0.35); background: rgba(110,168,254,0.18); color: var(--text); cursor: pointer; }
+    button:hover { background: rgba(110,168,254,0.26); }
+    button:disabled { opacity: 0.55; cursor:not-allowed; }
+    .hint { color: var(--muted); font-size: 12px; }
+    .log { margin-top: 14px; padding: 10px 12px; border-radius: 10px; background: rgba(0,0,0,0.22); border: 1px solid var(--border); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; font-size: 12px; white-space: pre-wrap; color: #d6defd; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>导出接口下载测试</h1>
+      <p class="sub">
+        访问本页：<code>/export-test.html</code>。<br/>
+        单分行（branches 不含逗号）下载 <code>.xlsx</code>；多分行（逗号分隔）下载 <code>.zip</code>。
+      </p>
+
+      <div class="grid">
+        <div class="field">
+          <label for="startDate">startDate（yyyy-MM-dd）</label>
+          <input id="startDate" placeholder="2025-07-01" value="2025-07-01" />
+        </div>
+        <div class="field">
+          <label for="endDate">endDate（yyyy-MM-dd）</label>
+          <input id="endDate" placeholder="2025-09-30" value="2025-09-30" />
+        </div>
+        <div class="field full">
+          <label for="branches">branches（逗号分隔）</label>
+          <input id="branches" placeholder="北京 或 北京,上海" value="北京" />
+        </div>
+        <div class="field full">
+          <label for="modelName">modelName（预览用，report_config.model_name）</label>
+          <input id="modelName" placeholder="信用拆借" value="信用拆借" />
+        </div>
+      </div>
+
+      <div class="row">
+        <button id="btn">下载</button>
+        <button id="btnPreview" type="button">预览</button>
+        <span class="hint">接口：<code>POST /api/excel/export-with-merge</code></span>
+      </div>
+
+      <div id="log" class="log">ready</div>
+      <div id="tableWrap" class="log" style="overflow:auto; margin-top:10px; padding:0;"></div>
+    </div>
+  </div>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const log = (msg) => { $("log").textContent = msg; };
+
+    function parseFilenameFromContentDisposition(cd) {
+      if (!cd) return null;
+      // filename*=UTF-8''xxx
+      const m1 = cd.match(/filename\*\s*=\s*UTF-8''([^;]+)/i);
+      if (m1 && m1[1]) return decodeURIComponent(m1[1].replaceAll('"', '').trim());
+      // filename="xxx"
+      const m2 = cd.match(/filename\s*=\s*("?)([^";]+)\1/i);
+      if (m2 && m2[2]) return m2[2].trim();
+      return null;
+    }
+
+    async function download() {
+      const startDate = $("startDate").value.trim();
+      const endDate = $("endDate").value.trim();
+      const branches = $("branches").value.trim();
+
+      $("btn").disabled = true;
+      log("requesting...");
+
+      try {
+        const resp = await fetch("/api/excel/export-with-merge", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ startDate, endDate, branches })
+        });
+
+        const ct = resp.headers.get("content-type") || "";
+        const cd = resp.headers.get("content-disposition") || "";
+
+        if (!resp.ok) {
+          // 可能返回 JSON(Response) 或文本
+          const text = await resp.text();
+          log(`HTTP ${resp.status}\ncontent-type: ${ct}\n\n${text}`);
+          return;
+        }
+
+        // 如果是 JSON，直接显示（一般是 BizException 被转成 Response）
+        if (ct.includes("application/json")) {
+          const text = await resp.text();
+          log(`JSON response\n\n${text}`);
+          return;
+        }
+
+        const blob = await resp.blob();
+        const filename = parseFilenameFromContentDisposition(cd) || (ct.includes("zip") ? "export.zip" : "export.xlsx");
+        log(`downloading...\ncontent-type: ${ct}\nfile: ${filename}\nsize: ${blob.size} bytes`);
+
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+      } catch (e) {
+        log(String(e && e.stack ? e.stack : e));
+      } finally {
+        $("btn").disabled = false;
+      }
+    }
+
+    $("btn").addEventListener("click", download);
+
+    function renderTable(title, headLists, dataLists) {
+      const wrap = $("tableWrap");
+      const heads = Array.isArray(headLists) ? headLists : [];
+      const data = Array.isArray(dataLists) ? dataLists : [];
+      const showTitleRow = (title != null) && String(title).trim() !== "";
+
+      // totalCols：按 headLists/dataLists 的最大列数
+      let totalCols = 0;
+      if (heads.length && Array.isArray(heads[0])) totalCols = Math.max(totalCols, heads[0].length);
+      if (data.length && Array.isArray(data[0])) totalCols = Math.max(totalCols, data[0].length);
+
+      // 没表头没数据：展示空
+      if (totalCols === 0) {
+        wrap.textContent = "";
+        return;
+      }
+
+      // 组装全表：可选 title 行 + 表头 + 数据
+      const allRows = [];
+      if (showTitleRow) {
+        const titleRow = new Array(totalCols).fill("");
+        titleRow[0] = title || "";
+        allRows.push(titleRow);
+      }
+      for (const r of heads) {
+        const row = new Array(totalCols).fill("");
+        if (Array.isArray(r)) for (let i = 0; i < Math.min(totalCols, r.length); i++) row[i] = (r[i] ?? "");
+        allRows.push(row);
+      }
+      for (const r of data) {
+        const row = new Array(totalCols).fill("");
+        if (Array.isArray(r)) for (let i = 0; i < Math.min(totalCols, r.length); i++) row[i] = (r[i] ?? "");
+        allRows.push(row);
+      }
+
+      const headRowCount = (showTitleRow ? 1 : 0) + heads.length; // (可选)title + headLists
+      let html = `<table style="border-collapse:collapse; width:max-content; min-width:100%;">`;
+      for (let r = 0; r < allRows.length; r++) {
+        html += "<tr>";
+        for (let c = 0; c < totalCols; c++) {
+          const isHead = r < headRowCount;
+          const tag = isHead ? "th" : "td";
+          const style = `border:1px solid var(--border); padding:6px 8px; white-space:nowrap; ${isHead ? "background:rgba(110,168,254,0.12);" : ""}`;
+          html += `<${tag} style="${style}">${String(allRows[r][c] ?? "")}</${tag}>`;
+        }
+        html += "</tr>";
+      }
+      html += "</table>";
+      wrap.innerHTML = html;
+    }
+
+    async function preview() {
+      const startDate = $("startDate").value.trim();
+      const endDate = $("endDate").value.trim();
+      const branch = $("branches").value.trim().split(",")[0].trim(); // 预览只支持单分行
+      const modelName = $("modelName").value.trim();
+
+      $("btnPreview").disabled = true;
+      log("preview requesting...");
+      $("tableWrap").textContent = "";
+      try {
+        const resp = await fetch("/api/excel/preview", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ startDate, endDate, branch, modelName })
+        });
+        const text = await resp.text();
+        if (!resp.ok) {
+          log(`HTTP ${resp.status}\n\n${text}`);
+          return;
+        }
+        const json = JSON.parse(text);
+        if (json && json.code === 200 && json.data) {
+          renderTable(json.data.title, json.data.headLists, json.data.dataLists);
+          log("preview ok");
+        } else {
+          log(text);
+        }
+      } catch (e) {
+        log(String(e && e.stack ? e.stack : e));
+      } finally {
+        $("btnPreview").disabled = false;
+      }
+    }
+
+    $("btnPreview").addEventListener("click", preview);
+  </script>
+</body>
+</html>
+

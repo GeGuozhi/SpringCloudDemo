@@ -35,6 +35,16 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>pl.project13.maven</groupId>
+                <artifactId>git-commit-id-plugin</artifactId>
+                <!-- 配置会从父pom继承，但这里可以覆盖 -->
+                <configuration>
+                    <dotGitDirectory>${project.basedir}/../.git</dotGitDirectory>
+                    <generateGitPropertiesFile>true</generateGitPropertiesFile>
+                    <generateGitPropertiesFilename>${project.build.outputDirectory}/git.properties</generateGitPropertiesFilename>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
@@ -44,10 +54,10 @@
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.springframework.cloud</groupId>-->
+<!--            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>-->
+<!--        </dependency>-->
 
         <dependency>
             <groupId>org.springframework.cloud</groupId>
