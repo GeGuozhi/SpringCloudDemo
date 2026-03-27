@@ -36,12 +36,21 @@ spring:
             test-while-idle: true
             test-on-borrow: false
             test-on-return: false
-
   # 告诉 Spring Boot 始终执行 schema.sql (默认行为通常是 embedded 数据库才执行，MySQL 需要显式开启或模式设置)
   sql:
     init:
       mode: always
       # 如果上面的 mode 不起作用，尝试添加 platform: mysql (文件名变为 schema-mysql.sql)
+  # Knife4j + Spring MVC 路径兼容配置（Spring Boot 2.6+ 必须设置）
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
 
 mybatis-plus:
   mapper-locations: classpath*:mapper/**/*.xml,classpath*:com/finance/mapper/**/*.xml
+
+# Knife4j 配置
+knife4j:
+  enable: true
+  setting:
+    language: zh_cn

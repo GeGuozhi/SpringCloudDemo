@@ -86,6 +86,12 @@
             <artifactId>swagger-annotations</artifactId>
             <version>1.6.12</version>
         </dependency>
+        <!-- Knife4j Swagger UI -->
+        <dependency>
+            <groupId>com.github.xiaoymin</groupId>
+            <artifactId>knife4j-spring-boot-starter</artifactId>
+            <version>3.0.3</version>
+        </dependency>
     </dependencies>
 
     <build>
