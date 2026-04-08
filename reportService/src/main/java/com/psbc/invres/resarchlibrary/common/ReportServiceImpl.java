@@ -3,11 +3,14 @@ package com.psbc.invres.resarchlibrary.common;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.psbc.invres.resarchlibrary.controller.excelconfig.vo.ReportConfig;
+import com.psbc.invres.resarchlibrary.controller.excelconfig.vo.ReportBranchVO;
+import com.psbc.invres.resarchlibrary.controller.excelconfig.vo.ReportBranchesRespVO;
+import com.psbc.invres.resarchlibrary.controller.excelconfig.vo.ReportConfigDO;
 import com.psbc.invres.resarchlibrary.entity.Response;
 import com.psbc.invres.resarchlibrary.enums.ResarchLibraryResponseCodeEnum;
 import com.psbc.invres.resarchlibrary.enums.SummaryTimeType;
 import com.psbc.invres.resarchlibrary.controller.excelconfig.vo.ExportWithMergeReqVO;
+import com.psbc.invres.resarchlibrary.controller.excelconfig.vo.ReportBranchesReqVO;
 import com.psbc.invres.resarchlibrary.controller.excelconfig.vo.ReportPreviewReqVO;
 import com.psbc.invres.resarchlibrary.controller.excelconfig.vo.ReportSummaryReqVO;
 import com.psbc.invres.resarchlibrary.controller.excelconfig.vo.HeaderNodeVO;
@@ -16,8 +19,10 @@ import com.psbc.invres.resarchlibrary.controller.excelconfig.vo.SummaryOverviewR
 import com.psbc.invres.resarchlibrary.exception.BizException;
 import com.psbc.invres.resarchlibrary.mapper.doris.DynamicReportMapper;
 import com.psbc.invres.resarchlibrary.mapper.doris.ReportConfigMapper;
+import com.psbc.invres.resarchlibrary.mapper.doris.OdsdbMapper;
 import com.psbc.invres.resarchlibrary.service.excelconfig.ReportService;
 import com.psbc.invres.resarchlibrary.util.DynamicReportGenerator;
+import com.psbc.invres.resarchlibrary.util.IndexCompletabFutureUtil;
 import com.psbc.invres.resarchlibrary.util.SmartExcelExporter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,6 +44,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -64,6 +70,8 @@ public class ReportServiceImpl implements ReportService {
     private final DynamicReportGenerator dynamicReportGenerator;
     private final ReportConfigMapper reportConfigMapper;
     private final DynamicReportMapper dynamicReportMapper;
+    private final OdsdbMapper odsdbMapper;
+    private final ThreadPoolExecutor exportExecutor;
 
     // ==================== /download 接口：下载 Excel/Zip ====================
 
@@ -116,7 +124,7 @@ public class ReportServiceImpl implements ReportService {
         }
 
         // ========== 4. 读取数据库模板配置 ==========
-        List<ReportConfig> templates = reportConfigMapper.selectList(null);
+        List<ReportConfigDO> templates = reportConfigMapper.selectList(null);
         if (templates == null || templates.isEmpty()) {
             throw new BizException(ResarchLibraryResponseCodeEnum.DB_TEMPLATE_NOT_FOUND);
         }
@@ -150,26 +158,53 @@ public class ReportServiceImpl implements ReportService {
             return;
         }
 
-        // 多个分行：生成多个 Excel 并打包成 Zip
+        // 多个分行：并行生成所有分行的 Excel，最后打包成 Zip
         JSONObject gpZip = buildGlobalParams(startDate, endDate, null, branches, startDateCn, endDateCn);
         String zipName = buildTitleFromTemplate(zipFileNameTemplate, gpZip);
         response.setContentType("application/zip");
         response.setHeader("Content-Disposition", "attachment; filename*=UTF-8''" +
                 URLEncoder.encode(zipName, StandardCharsets.UTF_8).replaceAll("\\+", "%20"));
 
-        try (OutputStream os = response.getOutputStream();
-             ZipOutputStream zos = new ZipOutputStream(os)) {
-            for (String b : branchArr) {
-                JSONObject gp = buildGlobalParams(startDate, endDate, b, branches, startDateCn, endDateCn);
-                byte[] bytes = buildExcelForBranch(b, gp, common, bundle.configs);
-                String entryName = buildTitleFromTemplate(zipEntryFileNameTemplate, gp);
-                zos.putNextEntry(new ZipEntry(entryName));
-                zos.write(bytes);
-                zos.closeEntry();
+        // 并行生成每个分行的 Excel
+        try {
+            List<BranchExcel> branchExcels = IndexCompletabFutureUtil.asynActEach(
+                    Arrays.asList(branchArr),
+                    branch -> {
+                        try {
+                            log.info(">>> [{}] 开始生成 Excel，configs.size={}", branch, bundle.configs.size());
+                            // 每次都重新深拷贝 configs，避免多线程共享
+                            JSONArray configsCopy = new JSONArray();
+                            for (Object cfgObj : bundle.configs) {
+                                if (cfgObj instanceof JSONObject) {
+                                    configsCopy.add(JSONObject.parseObject(((JSONObject) cfgObj).toJSONString()));
+                                }
+                            }
+                            JSONObject gp = buildGlobalParams(startDate, endDate, branch, branches, startDateCn, endDateCn);
+                            log.info(">>> [{}] 开始处理，configsCopy.size={}, common hashCode={}", 
+                                    branch, configsCopy.size(), System.identityHashCode(common));
+                            byte[] bytes = buildExcelForBranch(branch, gp, common, configsCopy);
+                            String entryName = buildTitleFromTemplate(zipEntryFileNameTemplate, gp);
+                            log.info(">>> [{}] Excel 生成完成，size={}", branch, bytes.length);
+                            return new BranchExcel(entryName, bytes);
+                        } catch (IOException ex) {
+                            throw new RuntimeException(ex);
+                        }
+                    },
+                    exportExecutor
+            );
+
+            // 写入 Zip
+            try (OutputStream os = response.getOutputStream();
+                 ZipOutputStream zos = new ZipOutputStream(os)) {
+                for (BranchExcel be : branchExcels) {
+                    zos.putNextEntry(new ZipEntry(be.entryName));
+                    zos.write(be.bytes);
+                    zos.closeEntry();
+                }
+                zos.finish();
             }
-            zos.finish();
-        } catch (IOException ex) {
-            throw ex; // IO 异常向上抛，由容器统一处理
+        } catch (BizException ex) {
+            throw ex;
         } catch (Exception ex) {
             throw new BizException(ResarchLibraryResponseCodeEnum.AT_ZIP_CREATE_FAILED, ex.getMessage());
         }
@@ -274,14 +309,14 @@ public class ReportServiceImpl implements ReportService {
         }
 
         // ========== 2. 读取汇总配置 ==========
-        List<ReportConfig> configs = reportConfigMapper.selectList(null);
+        List<ReportConfigDO> configs = reportConfigMapper.selectList(null);
         if (configs == null || configs.isEmpty()) {
             throw new BizException(ResarchLibraryResponseCodeEnum.DB_TEMPLATE_NOT_FOUND);
         }
 
         // ========== 3. 遍历处理每个业务品种 ==========
         List<JSONObject> jsons = new ArrayList<>();
-        for (ReportConfig rc : configs) {
+        for (ReportConfigDO rc : configs) {
             // 跳过未配置汇总 JSON 的业务品种
             if (rc == null || !StringUtils.hasText(rc.getFieldContentNewVal())) {
                 continue;
@@ -384,6 +419,31 @@ public class ReportServiceImpl implements ReportService {
         return Response.success(vo);
     }
 
+    // ==================== /searchBranches 接口：查询分行列表 ====================
+
+    /**
+     * 查询分行列表
+     *
+     * @param req 请求参数，包含 branchName（可选，模糊匹配）
+     * @return 分行列表
+     */
+    @Override
+    public Response<ReportBranchesRespVO> searchBranches(ReportBranchesReqVO req) {
+        List<Map<String, String>> lists = odsdbMapper.searchBranches(req.getBranchName());
+
+        ReportBranchesRespVO respVOS = new ReportBranchesRespVO();
+        List<ReportBranchVO> branchVOS = new ArrayList<>();
+
+        lists.forEach(map->{
+            ReportBranchVO branchVO = new ReportBranchVO();
+            branchVO.setBranch(map.get("branch"));
+            branchVO.setBranchValue(map.get("branchValue"));
+            branchVOS.add(branchVO);
+        });
+        respVOS.setBranches(branchVOS);
+        return Response.success(respVOS);
+    }
+
     // ==================== 内部工具方法：SQL 处理 ====================
 
     /**
@@ -484,7 +544,7 @@ public class ReportServiceImpl implements ReportService {
      * 从数据库读取指定 modelName 的预览模板
      */
     private JSONObject parseViewTemplate(String modelName) {
-        ReportConfig rc = reportConfigMapper.selectOne(new QueryWrapper<ReportConfig>().eq("model_name", modelName));
+        ReportConfigDO rc = reportConfigMapper.selectOne(new QueryWrapper<ReportConfigDO>().eq("model_name", modelName));
         if (rc == null) {
             throw new BizException(ResarchLibraryResponseCodeEnum.DC_TEMPLATE_NOT_FOUND, modelName);
         }
@@ -760,6 +820,19 @@ public class ReportServiceImpl implements ReportService {
         }
     }
 
+    /**
+     * Zip 打包用的分行 Excel 封装（文件名 + 字节数组）
+     */
+    private static class BranchExcel {
+        final String entryName;
+        final byte[] bytes;
+
+        BranchExcel(String entryName, byte[] bytes) {
+            this.entryName = entryName;
+            this.bytes = bytes;
+        }
+    }
+
     // ==================== 内部工具方法：Excel 导出 ====================
 
     /**
@@ -781,6 +854,11 @@ public class ReportServiceImpl implements ReportService {
         String titleTemplate = common.getString("titleTemplate");
         JSONArray leftDimensions = common.getJSONArray("leftDimensions");
 
+        // 调试日志：验证 common 和 leftDimensions 的状态
+        log.info("[{}] buildExcelForBranch 开始，common identity={}, leftDimensions identity={}, leftDimensions.size={}",
+                branch, System.identityHashCode(common), System.identityHashCode(leftDimensions),
+                leftDimensions != null ? leftDimensions.size() : 0);
+
         // 逐个 config 生成报表数据
         List<Map<String, Object>> reportMaps = new ArrayList<>();
         for (int i = 0; i < configs.size(); i++) {
@@ -789,16 +867,63 @@ public class ReportServiceImpl implements ReportService {
                 continue;
             }
 
-            // 注入公共配置
-            cfg.put("dataHeaderRowIndex", dataHeaderRowIndex);
-            cfg.put("titleTemplate", titleTemplate);
-            cfg.put("leftDimensions", leftDimensions);
-            cfg.put("globalParams", gp);
+            // 深拷贝整个 config，避免数据污染
+            JSONObject cfgCopy = JSONObject.parseObject(cfg.toJSONString());
+            
+            // 深拷贝 leftDimensions（必须完全独立，因为第一列的行数由它决定）
+            JSONArray leftDimsCopy = new JSONArray();
+            JSONArray leftDimsOriginal = common.getJSONArray("leftDimensions");
+            if (leftDimsOriginal != null) {
+                for (Object dimObj : leftDimsOriginal) {
+                    if (dimObj instanceof JSONObject) {
+                        leftDimsCopy.add(JSONObject.parseObject(((JSONObject) dimObj).toJSONString()));
+                    } else {
+                        leftDimsCopy.add(dimObj);
+                    }
+                }
+            }
+            cfgCopy.put("leftDimensions", leftDimsCopy);
+            
+            // 深拷贝 topDimensions（如果有的话）
+            JSONArray topDimsOriginal = cfgCopy.getJSONArray("topDimensions");
+            if (topDimsOriginal != null) {
+                JSONArray topDimsCopy = new JSONArray();
+                for (Object dimObj : topDimsOriginal) {
+                    if (dimObj instanceof JSONObject) {
+                        topDimsCopy.add(JSONObject.parseObject(((JSONObject) dimObj).toJSONString()));
+                    } else {
+                        topDimsCopy.add(dimObj);
+                    }
+                }
+                cfgCopy.put("topDimensions", topDimsCopy);
+            }
+            
+            // 深拷贝 metrics（如果有的话）
+            JSONArray metricsOriginal = cfgCopy.getJSONArray("metrics");
+            if (metricsOriginal != null) {
+                JSONArray metricsCopy = new JSONArray();
+                for (Object mObj : metricsOriginal) {
+                    if (mObj instanceof JSONObject) {
+                        metricsCopy.add(JSONObject.parseObject(((JSONObject) mObj).toJSONString()));
+                    } else {
+                        metricsCopy.add(mObj);
+                    }
+                }
+                cfgCopy.put("metrics", metricsCopy);
+            }
+            
+            cfgCopy.put("dataHeaderRowIndex", dataHeaderRowIndex);
+            cfgCopy.put("titleTemplate", titleTemplate);
+            cfgCopy.put("globalParams", gp);
 
             try {
-                reportMaps.add(dynamicReportGenerator.generateReportData(cfg.toJSONString()));
+                log.info(">>> [{}] 开始处理第 {} 个配置，leftDimsCopy.size={}", gp.getString("branch"), i, leftDimsCopy.size());
+                Map<String, Object> reportMap = dynamicReportGenerator.generateReportData(cfgCopy.toJSONString());
+                log.info(">>> [{}] 第 {} 个配置完成，dataLists.size={}", gp.getString("branch"), i, 
+                        ((List<?>)reportMap.get("dataLists")).size());
+                reportMaps.add(reportMap);
             } catch (Exception ex) {
-                throw new BizException(ResarchLibraryResponseCodeEnum.AT_REPORT_GENERATE_FAILED, "业务[" + branch + "]报表：" + ex.getMessage());
+                throw new BizException(ResarchLibraryResponseCodeEnum.AT_REPORT_GENERATE_FAILED, "业务[" + gp.getString("branch") + "]报表：" + ex.getMessage());
             }
         }
 
@@ -962,11 +1087,16 @@ public class ReportServiceImpl implements ReportService {
 
     /**
      * 将模板中的 #{变量名} 替换为实际值
+     * 特殊处理：branch 非"总行"时自动拼接"分行"后缀
      *
      * 示例：
-     * 模板："#{startDateCn}至#{endDateCn}报表"
-     * 参数：{"startDateCn": "2024年1月1日", "endDateCn": "2024年1月31日"}
-     * 结果："2024年1月1日至2024年1月31日报表"
+     * 模板："#{startDateCn}至#{endDateCn}#{branch}报表"
+     * 参数：{"startDateCn": "2024年1月1日", "endDateCn": "2024年1月31日", "branch": "北京"}
+     * 结果："2024年1月1日至2024年1月31日北京分行报表"
+     *
+     * 特殊处理：
+     * - branch = "总行" → 不拼接"分行"后缀
+     * - branch = 其他 → 自动拼接"分行"后缀
      */
     private static String buildTitleFromTemplate(String template, JSONObject globalParams) {
         if (!StringUtils.hasText(template) || globalParams == null || globalParams.isEmpty()) {
@@ -978,6 +1108,11 @@ public class ReportServiceImpl implements ReportService {
                 continue;
             }
             t = t.replace("#{" + e.getKey() + "}", String.valueOf(e.getValue()));
+        }
+        // branch 非"总行"时自动拼接"分行"后缀
+        String branch = globalParams.getString("branch");
+        if (template.contains("#{branch}") && !"总行".equals(branch)) {
+            t = t.replace(branch, branch + "分行");
         }
         return t;
     }
@@ -1003,13 +1138,15 @@ public class ReportServiceImpl implements ReportService {
      * - 每个模板必须包含 common 和 config
      * - 所有模板的 common 配置必须一致
      *
+     * 注意：为避免多线程并发时数据污染，必须对 JSON 对象进行深拷贝
+     *
      * @return common 配置和 config 数组
      */
-    private static TemplateBundle parseAndValidateTemplates(List<ReportConfig> templates) {
-        JSONObject common = null;
+    private static TemplateBundle parseAndValidateTemplates(List<ReportConfigDO> templates) {
+        JSONObject commonTemplate = null;
         JSONArray configs = new JSONArray();
 
-        for (ReportConfig rc : templates) {
+        for (ReportConfigDO rc : templates) {
             if (rc == null) {
                 continue;
             }
@@ -1017,6 +1154,7 @@ public class ReportServiceImpl implements ReportService {
             if (!StringUtils.hasText(rc.getReqParaVal())) {
                 throw new BizException(ResarchLibraryResponseCodeEnum.BL_EXPORT_CONFIG_MISSING, rc.getModelName());
             }
+            // 深拷贝：每次解析都创建全新的对象，避免多线程共享引用
             JSONObject tpl = JSONObject.parseObject(rc.getReqParaVal());
             JSONObject c = tpl.getJSONObject("common");
             JSONObject cfg = tpl.getJSONObject("config");
@@ -1024,18 +1162,20 @@ public class ReportServiceImpl implements ReportService {
                 throw new BizException(ResarchLibraryResponseCodeEnum.BL_EXPORT_JSON_STRUCTURE_INVALID, rc.getModelName());
             }
 
-            if (common == null) {
-                common = c;
-            } else if (!common.equals(c)) {
+            if (commonTemplate == null) {
+                // 深拷贝 common（避免后续修改影响模板）
+                commonTemplate = JSONObject.parseObject(c.toJSONString());
+            } else if (!commonTemplate.equals(c)) {
                 throw new BizException(ResarchLibraryResponseCodeEnum.BL_TEMPLATE_COMMON_INCONSISTENT, rc.getModelName());
             }
-            configs.add(cfg);
+            // 深拷贝 config（每个分支需要独立的 config 对象）
+            configs.add(JSONObject.parseObject(cfg.toJSONString()));
         }
 
-        if (common == null) {
+        if (commonTemplate == null) {
             throw new BizException(ResarchLibraryResponseCodeEnum.AT_TEMPLATE_COMMON_EMPTY);
         }
-        return new TemplateBundle(common, configs);
+        return new TemplateBundle(commonTemplate, configs);
     }
 
     /**

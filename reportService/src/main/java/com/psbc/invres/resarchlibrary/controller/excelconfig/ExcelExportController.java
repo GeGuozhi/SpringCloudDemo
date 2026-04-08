@@ -1,7 +1,9 @@
-package com.psbc.invres.resarchlibrary.controller;
+package com.psbc.invres.resarchlibrary.controller.excelconfig;
 
 import com.psbc.invres.resarchlibrary.controller.excelconfig.vo.ExportWithMergeReqVO;
 import com.psbc.invres.resarchlibrary.controller.excelconfig.vo.PreviewTableRespVO;
+import com.psbc.invres.resarchlibrary.controller.excelconfig.vo.ReportBranchesReqVO;
+import com.psbc.invres.resarchlibrary.controller.excelconfig.vo.ReportBranchesRespVO;
 import com.psbc.invres.resarchlibrary.controller.excelconfig.vo.ReportPreviewReqVO;
 import com.psbc.invres.resarchlibrary.controller.excelconfig.vo.ReportSummaryReqVO;
 import com.psbc.invres.resarchlibrary.controller.excelconfig.vo.SummaryOverviewRespVO;
@@ -68,5 +70,18 @@ public class ExcelExportController {
     @PostMapping("/summary")
     public Response<SummaryOverviewRespVO> summary(@RequestBody ReportSummaryReqVO req) {
         return reportService.summary(req);
+    }
+
+    /**
+     * 查询分行列表
+     *
+     * @param req 请求体，包含 branchName（可选，模糊匹配）
+     */
+    @ApiOperation(value = "查询分行列表", notes = "从 odsdb 数据库查询分行列表。\n" +
+            "如果不传 branchName，则查询全部分行；如果传入，则进行模糊匹配。\n" +
+            "返回每条记录包含 branch（分行名称）和 branchValue（分行名称+分行后缀）。")
+    @PostMapping("/searchBranches")
+    public Response<ReportBranchesRespVO> searchBranches(@RequestBody ReportBranchesReqVO req) {
+        return reportService.searchBranches(req);
     }
 }

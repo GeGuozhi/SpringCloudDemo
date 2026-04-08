@@ -4,6 +4,7 @@ import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import com.psbc.invres.resarchlibrary.mapper.doris.DynamicReportMapper;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -17,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -59,8 +61,11 @@ import java.util.stream.Collectors;
 @Component
 public class DynamicReportGenerator {
 
-    @Autowired
-    private DynamicReportMapper dynamicReportMapper;
+    private final DynamicReportMapper dynamicReportMapper;
+
+    public DynamicReportGenerator(DynamicReportMapper dynamicReportMapper) {
+        this.dynamicReportMapper = dynamicReportMapper;
+    }
 
     /**
      * 单个 config 的主入口：
@@ -97,18 +102,28 @@ public class DynamicReportGenerator {
         int metricsCount = metrics.size();
         List<JSONObject> metricList = metrics.toJavaList(JSONObject.class);
 
-        // 1. 构建左侧维度数据：
+        // 调试日志：打印传入的 branch 参数
+        String branchInParams = baseParams.get("branch");
+        log.info("[DynamicReportGenerator] 开始生成报表，branch={}, leftLevels={}, metricsCount={}",
+                branchInParams, leftLevels, metricsCount);
+
+        // 请求内局部缓存：同一分行的左侧维度数据只查询一次
+        Map<String, List<LeftRowContext>> requestCache = new HashMap<>();
+
+        // 1. 构建左侧维度数据（使用请求内缓存，同一分行的左侧数据只查询一次）
         //    - 第一列允许多行，决定最终数据行数
         //    - 第二列及之后：每个"父节点"至多 0 或 1 行，超出即抛异常
-        List<LeftRowContext> leftRows = buildLeftData(leftDims, new HashMap<>(baseParams), true);
+        List<LeftRowContext> leftRows = buildLeftDataWithCache(leftDims, baseParams, branchInParams, requestCache);
+        log.info("[DynamicReportGenerator] branch={} 构建左侧数据完成，leftRows.size={}", branchInParams, leftRows.size());
 
-        // 2. 构建顶部维度表头和路径
-        List<List<String>> rawTopHeaders = buildTopHeadersRecursive(topDims, new HashMap<>(baseParams));
+        // 2. 构建顶部维度表头和路径（合并查询，避免重复执行维度 SQL）
+        TopDimensionsResult topResult = buildTopDimensionsWithMerge(topDims, new HashMap<>(baseParams));
+        List<List<String>> rawTopHeaders = topResult.headers;
         if (rawTopHeaders.isEmpty()) {
             rawTopHeaders.add(new ArrayList<>());
         }
         int leafCount = rawTopHeaders.get(rawTopHeaders.size() - 1).size();
-        List<Map<String, String>> topPaths = buildTopPaths(topDims, new HashMap<>(baseParams));
+        List<Map<String, String>> topPaths = topResult.paths;
 
         // 指定"数据列（指标）表头所在行"（0-based）。
         // 未配置时，默认 = rawTopHeaders.size()（即顶部维度行数之后的下一行）
@@ -347,17 +362,281 @@ public class DynamicReportGenerator {
 
         List<LeftRowContext> result = new ArrayList<>();
 
+        // ========== 优化：第二维度及之后使用批量查询 ==========
+        // 只有当有后续维度时，才进入批量查询方法
+        // buildLeftDataWithBatchQuery 内部会处理 next 的计算
+        if (!next.isEmpty()) {
+            // 将第一维度 + 后续维度一起传入
+            return buildLeftDataWithBatchQuery(rows, dims, params);
+        }
+
+        // 无后续维度，按原有逻辑处理
         for (Map<String, String> row : rows) {
-            // 左侧展示逻辑：
-            // - SQL 可以 SELECT 多列（例如 coop_name1, coop_name2, coop_name3）
-            // - 仅取"最后一个非空字段"作为展示值
-            // - 在前面加 (列序号-1) 个 "  " 作为缩进，用于体现层级
             String displayVal = buildIndentedLastNonEmptyDisplayValue(row);
 
             Map<String, String> nextParams = new HashMap<>(params);
             injectAllNonEmptyParams(nextParams, row);
 
-            // 关键修复：将格式化后的 displayVal 作为一个虚拟参数注入
+            if (StringUtils.isNotBlank(displayVal)) {
+                nextParams.put(fieldName, displayVal);
+            }
+
+            LeftRowContext currentCtx = new LeftRowContext();
+            currentCtx.displayValues.add(displayVal);
+            currentCtx.paramValues.putAll(nextParams);
+            result.add(currentCtx);
+        }
+        return result;
+    }
+
+    /**
+     * 单次请求内的左侧数据构建方法
+     * 使用局部缓存保证同一次请求中多个 config 复用同一份左侧数据
+     */
+    private List<LeftRowContext> buildLeftDataWithCache(JSONArray leftDims, Map<String, String> baseParams, String branch, Map<String, List<LeftRowContext>> requestCache) {
+        // 生成缓存 key：branch + leftDims 结构
+        String leftDimsJson = leftDims.toJSONString();
+        String cacheKey = branch + ":" + leftDimsJson;
+
+        return requestCache.computeIfAbsent(cacheKey, k -> {
+            log.info("[DynamicReportGenerator] branch={} 未命中请求内缓存，执行左侧数据查询...", branch);
+            try {
+                List<LeftRowContext> leftRows = buildLeftData(leftDims, new HashMap<>(baseParams), true);
+                log.info("[DynamicReportGenerator] branch={} 请求内缓存左侧数据，leftRows.size={}", branch, leftRows.size());
+                return deepCopyLeftRows(leftRows);
+            } catch (Exception e) {
+                throw new RuntimeException("构建左侧维度数据失败: " + e.getMessage(), e);
+            }
+        });
+    }
+
+    /**
+     * 深拷贝 LeftRowContext 列表，避免缓存被外部修改
+     */
+    private List<LeftRowContext> deepCopyLeftRows(List<LeftRowContext> original) {
+        List<LeftRowContext> copy = new ArrayList<>();
+        for (LeftRowContext ctx : original) {
+            LeftRowContext newCtx = new LeftRowContext();
+            newCtx.displayValues = new ArrayList<>(ctx.displayValues);
+            newCtx.paramValues = new HashMap<>(ctx.paramValues);
+            copy.add(newCtx);
+        }
+        return copy;
+    }
+
+    /**
+     * 优化后的构建方法：第二维度及之后使用批量查询，避免指数级查询
+     *
+     * 思路：
+     * 1. 第一维度查询返回 N 行（如 coop_name1 的值）
+     * 2. 第二维度一次性查询所有数据（不带 coop_name1 条件），按 coop_name1 分组
+     * 3. 按 coop_name1 匹配，每个父节点取最多 1 行
+     * 4. 如果某个父节点没有对应数据，补充空行以保持行数一致
+     *
+     * 层级区分：
+     * - 第一维度行：可能 SELECT 多列，用 buildIndentedLastNonEmptyDisplayValue 做层级缩进
+     * - 第二维度行：直接取关联字段的值，不做层级缩进
+     */
+    private List<LeftRowContext> buildLeftDataWithBatchQuery(
+            List<Map<String, String>> parentRows,
+            JSONArray dims,
+            Map<String, String> baseParams) throws Exception {
+
+        if (parentRows == null || parentRows.isEmpty()) {
+            return new ArrayList<>();
+        }
+        if (dims == null || dims.isEmpty()) {
+            LeftRowContext ctx = new LeftRowContext();
+            ctx.paramValues.putAll(baseParams);
+            return Collections.singletonList(ctx);
+        }
+
+        // dims[0] 是当前处理的维度（由调用方已经处理过的）
+        // dims[1] 是第二个维度（需要批量处理的）
+        // ...
+        JSONObject currentDimConfig = dims.getJSONObject(0);
+        if (currentDimConfig == null) {
+            throw new IllegalArgumentException("leftDimensions 配置错误：维度配置不能为空");
+        }
+        String fieldName = currentDimConfig.getString("fieldName");
+
+        // 计算后续维度
+        JSONArray next = dims.size() > 1 ? new JSONArray(dims.subList(1, dims.size())) : new JSONArray();
+
+        // 确定第一维度返回的实际列名（用于关联后续维度）
+        Map<String, String> firstRow = parentRows.get(0);
+        List<String> selectColumns = new ArrayList<>();
+        for (Map.Entry<String, String> entry : firstRow.entrySet()) {
+            if (StringUtils.isNotBlank(entry.getValue())) {
+                selectColumns.add(entry.getKey());
+            }
+        }
+
+        // 用第一个非 fieldName 的列作为关联字段
+        // 防御：如果 selectColumns 为空，直接返回（无法进行批量匹配）
+        if (selectColumns.isEmpty()) {
+            // 降级：无法确定关联字段，按原有逐行逻辑处理
+            return buildLeftDataOriginalFallback(parentRows, dims, baseParams);
+        }
+
+        String linkField = selectColumns.get(0);
+        for (String col : selectColumns) {
+            if (!col.equals(fieldName)) {
+                linkField = col;
+                break;
+            }
+        }
+
+        // 获取第一维度查询结果中用于关联后续维度的字段值
+        List<String> parentKeys = new ArrayList<>();
+        for (Map<String, String> row : parentRows) {
+            String key = row.get(linkField);
+            parentKeys.add(key != null ? key : "");
+        }
+
+        // ========== 第二维度批量查询 ==========
+        JSONObject nextDimConfig = next.getJSONObject(0);
+        String nextFieldName = nextDimConfig.getString("fieldName");
+        String nextSql = nextDimConfig.getString("querySql");
+        
+        // 批量查询：去掉父节点条件（#{coop_name1}），查询所有数据
+        // 需要 SQL 中 SELECT 出 linkField（coop_name1）才能匹配
+        String batchSql = SqlBuilder.buildDataSqlWithEmptyParamHandling(nextSql, baseParams);
+        
+        List<Map<String, String>> allNextRows = new ArrayList<>();
+        if (StringUtils.isNotBlank(batchSql)) {
+            allNextRows = executeQuery(batchSql);
+        }
+
+        // 按关联字段分组（用 linkField 对应的值）
+        Map<String, Map<String, String>> groupedNextRows = new LinkedHashMap<>();
+        for (Map<String, String> nextRow : allNextRows) {
+            String parentKey = nextRow.get(linkField);
+            if (parentKey != null && !groupedNextRows.containsKey(parentKey)) {
+                groupedNextRows.put(parentKey, nextRow);
+            }
+        }
+
+        // ========== 为每个第一维度行匹配第二维度数据 ==========
+        List<LeftRowContext> result = new ArrayList<>();
+        for (int i = 0; i < parentRows.size(); i++) {
+            Map<String, String> parentRow = parentRows.get(i);
+            String parentKey = parentKeys.get(i);
+
+            // 第一维度行展示值：可能有多列，做层级缩进
+            String displayVal = buildIndentedLastNonEmptyDisplayValue(parentRow);
+
+            // 构建当前行的参数
+            Map<String, String> currentParams = new HashMap<>(baseParams);
+            injectAllNonEmptyParams(currentParams, parentRow);
+            if (StringUtils.isNotBlank(displayVal)) {
+                currentParams.put(fieldName, displayVal);
+            }
+
+            // 匹配第二维度数据
+            Map<String, String> matchedNextRow = groupedNextRows.get(parentKey);
+
+            if (next.size() <= 1) {
+                // 只有一个后续维度，第二维度数据直接作为最终行
+                LeftRowContext ctx = new LeftRowContext();
+                // 第一维度展示值（可能有层级缩进）
+                ctx.displayValues.add(displayVal);
+
+                if (matchedNextRow != null) {
+                    // 第二维度展示值：直接取关联字段的值，不做层级缩进
+                    // 如果 SQL SELECT 了多列，取最后一个非空列的值
+                    String nextDisplayVal = getLastNonEmptyValue(matchedNextRow);
+                    ctx.displayValues.add(nextDisplayVal);
+                    // 注入第二维度查询返回的所有字段
+                    injectAllNonEmptyParams(currentParams, matchedNextRow);
+                    if (StringUtils.isNotBlank(nextDisplayVal)) {
+                        currentParams.put(nextFieldName, nextDisplayVal);
+                    }
+                } else {
+                    // 没有匹配的第二个维度数据，添加空行以保持行数一致
+                    ctx.displayValues.add("");
+                }
+                ctx.paramValues.putAll(currentParams);
+                result.add(ctx);
+            } else {
+                // 有多个后续维度，递归处理
+                LeftRowContext currentCtx = new LeftRowContext();
+                currentCtx.displayValues.add(displayVal);
+                currentCtx.paramValues.putAll(currentParams);
+
+                if (matchedNextRow != null) {
+                    injectAllNonEmptyParams(currentParams, matchedNextRow);
+
+                    // 递归处理剩余维度
+                    JSONArray remainingDims = new JSONArray(next.subList(1, next.size()));
+                    Map<String, String> recursiveParams = new HashMap<>(currentParams);
+                    List<LeftRowContext> subs = buildLeftDataWithBatchQuery(
+                            Collections.singletonList(matchedNextRow),
+                            remainingDims,
+                            recursiveParams
+                    );
+
+                    for (LeftRowContext sub : subs) {
+                        // 先添加第一维度展示值
+                        sub.displayValues.addAll(0, currentCtx.displayValues);
+                        // params 合并：保留递归结果中的所有参数（包括第二维度及之后的参数）
+                        for (Map.Entry<String, String> entry : currentCtx.paramValues.entrySet()) {
+                            if (!sub.paramValues.containsKey(entry.getKey())) {
+                                sub.paramValues.put(entry.getKey(), entry.getValue());
+                            }
+                        }
+                        result.add(sub);
+                    }
+                } else {
+                    // 没有匹配的第二个维度数据，补充空行
+                    LeftRowContext emptyCtx = new LeftRowContext();
+                    emptyCtx.displayValues.addAll(currentCtx.displayValues);
+                    for (int j = 1; j < next.size(); j++) {
+                        emptyCtx.displayValues.add("");
+                    }
+                    emptyCtx.paramValues.putAll(currentCtx.paramValues);
+                    result.add(emptyCtx);
+                }
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * 获取 map 中最后一个非空值（用于第二维度展示，不做层级缩进）
+     */
+    private static String getLastNonEmptyValue(Map<String, String> row) {
+        if (row == null || row.isEmpty()) {
+            return "";
+        }
+        String lastVal = "";
+        for (String v : row.values()) {
+            if (StringUtils.isNotBlank(v)) {
+                lastVal = v.trim();
+            }
+        }
+        return lastVal;
+    }
+
+    /**
+     * 降级处理：当无法确定关联字段时，使用原有逐行逻辑
+     */
+    private List<LeftRowContext> buildLeftDataOriginalFallback(
+            List<Map<String, String>> parentRows,
+            JSONArray dims,
+            Map<String, String> baseParams) throws Exception {
+
+        JSONObject currentDimConfig = dims.getJSONObject(0);
+        String fieldName = currentDimConfig.getString("fieldName");
+        JSONArray next = dims.size() > 1 ? new JSONArray(dims.subList(1, dims.size())) : new JSONArray();
+
+        List<LeftRowContext> result = new ArrayList<>();
+        for (Map<String, String> row : parentRows) {
+            String displayVal = buildIndentedLastNonEmptyDisplayValue(row);
+
+            Map<String, String> nextParams = new HashMap<>(baseParams);
+            injectAllNonEmptyParams(nextParams, row);
             if (StringUtils.isNotBlank(displayVal)) {
                 nextParams.put(fieldName, displayVal);
             }
@@ -366,13 +645,20 @@ public class DynamicReportGenerator {
             currentCtx.displayValues.add(displayVal);
             currentCtx.paramValues.putAll(nextParams);
 
+            // 递归处理后续维度（使用原有逐行逻辑）
             List<LeftRowContext> subs = buildLeftData(next, nextParams, false);
             if (subs.isEmpty()) {
                 result.add(currentCtx);
             } else {
                 for (LeftRowContext sub : subs) {
+                    // 先添加当前维度展示值
                     sub.displayValues.addAll(0, currentCtx.displayValues);
-                    sub.paramValues.putAll(currentCtx.paramValues);
+                    // params 合并：保留递归结果中的所有参数
+                    for (Map.Entry<String, String> entry : currentCtx.paramValues.entrySet()) {
+                        if (!sub.paramValues.containsKey(entry.getKey())) {
+                            sub.paramValues.put(entry.getKey(), entry.getValue());
+                        }
+                    }
                     result.add(sub);
                 }
             }
@@ -436,11 +722,136 @@ public class DynamicReportGenerator {
     }
 
     /**
+     * 顶部维度构建结果：同时包含表头和路径
+     */
+    static class TopDimensionsResult {
+        List<List<String>> headers;  // 表头矩阵
+        List<Map<String, String>> paths;  // 叶子列参数
+
+        TopDimensionsResult(List<List<String>> headers, List<Map<String, String>> paths) {
+            this.headers = headers;
+            this.paths = paths;
+        }
+    }
+
+    /**
+     * 合并构建顶部维度的表头和路径（避免 buildTopHeadersRecursive 和 buildTopPaths 重复查询）
+     * 一次性递归遍历 topDimensions，同时返回：
+     * - headers：表头值矩阵
+     * - paths：每个叶子列的参数组合
+     */
+    private TopDimensionsResult buildTopDimensionsWithMerge(JSONArray dims, Map<String, String> params) throws Exception {
+        if (dims == null || dims.isEmpty()) {
+            // 叶子节点：没有子维度了，返回空表头（表示不再有后续行），但返回一个路径
+            return new TopDimensionsResult(new ArrayList<>(), Collections.singletonList(new HashMap<>(params)));
+        }
+
+        // 先执行维度查询一次
+        JSONObject dim = dims.getJSONObject(0);
+        String sqlTemplate = dim.getString("querySql");
+        String builtSql = SqlBuilder.build(sqlTemplate, params);
+        if (StringUtils.isBlank(builtSql)) {
+            return new TopDimensionsResult(new ArrayList<>(), new ArrayList<>());
+        }
+        List<Map<String, String>> rows = executeQuery(builtSql);
+        if (rows.isEmpty()) {
+            return new TopDimensionsResult(new ArrayList<>(), new ArrayList<>());
+        }
+
+        JSONArray nextDims = dims.size() > 1 ? new JSONArray(dims.subList(1, dims.size())) : new JSONArray();
+
+        // 先收集所有子结果
+        List<SubResultEntry> subResultEntries = new ArrayList<>();
+        for (Map<String, String> row : rows) {
+            String val = extractDisplayValue(row);
+            Map<String, String> nextParams = new HashMap<>(params);
+            injectAllNonEmptyParams(nextParams, row);
+
+            TopDimensionsResult subResult = buildTopDimensionsWithMerge(nextDims, nextParams);
+            // 子维度的宽度：如果子表头为空（没有后续维度），则宽度为 1
+            int subWidth = subResult.headers.isEmpty() ? 1 : subResult.headers.get(0).size();
+            subResultEntries.add(new SubResultEntry(val, nextParams, subResult.headers, subResult.paths, subWidth));
+        }
+
+        // 计算总宽度和最大高度
+        int totalWidth = 0;
+        int maxHeight = 0;
+        for (SubResultEntry entry : subResultEntries) {
+            totalWidth += entry.width;
+            maxHeight = Math.max(maxHeight, entry.headers.size() + 1);  // +1 因为第一行是当前维度
+        }
+
+        // 构建最终表头
+        List<List<String>> resultHeaders = new ArrayList<>();
+        for (int i = 0; i < maxHeight; i++) {
+            resultHeaders.add(new ArrayList<>());
+        }
+
+        // 合并所有子结果
+        List<Map<String, String>> allPaths = new ArrayList<>();
+        for (SubResultEntry entry : subResultEntries) {
+            // 合并路径
+            for (Map<String, String> sp : entry.paths) {
+                Map<String, String> mergedPath = new HashMap<>(entry.params);
+                mergedPath.putAll(sp);
+                allPaths.add(mergedPath);
+            }
+
+            // 填充表头
+            List<List<String>> subHeaders = entry.headers;
+            int width = entry.width;
+            for (int rowIdx = 0; rowIdx < maxHeight; rowIdx++) {
+                if (rowIdx == 0) {
+                    // 第一行：填入维度值（重复 width 次）
+                    for (int k = 0; k < width; k++) {
+                        resultHeaders.get(0).add(entry.val);
+                    }
+                } else {
+                    // 后续行：填入子维度的表头值
+                    int subRowIdx = rowIdx - 1;
+                    if (subRowIdx < subHeaders.size()) {
+                        resultHeaders.get(rowIdx).addAll(subHeaders.get(subRowIdx));
+                    } else {
+                        // 子维度高度不足，填空
+                        for (int k = 0; k < width; k++) {
+                            resultHeaders.get(rowIdx).add("");
+                        }
+                    }
+                }
+            }
+        }
+
+        return new TopDimensionsResult(resultHeaders, allPaths);
+    }
+
+    /**
+     * 子维度结果条目（用于合并计算）
+     */
+    private static class SubResultEntry {
+        String val;                           // 当前维度的展示值
+        Map<String, String> params;           // 当前维度的参数
+        List<List<String>> headers;             // 子维度的表头
+        List<Map<String, String>> paths;        // 子维度的路径
+        int width;                             // 子维度的宽度（叶子列数）
+
+        SubResultEntry(String val, Map<String, String> params, List<List<String>> headers,
+                       List<Map<String, String>> paths, int width) {
+            this.val = val;
+            this.params = params;
+            this.headers = headers;
+            this.paths = paths;
+            this.width = width;
+        }
+    }
+
+    /**
      * 构建顶部"路径列表"：
      * - 每个叶子列对应一个 Map，包含这一列所有 topDimensions 的取值
      *   例如：{year_val=2025, quarter_val=Q3, month_val=2025-07}
      * - 后续数据查询会把这些参数与左侧参数合并，用于 metrics 的 SQL
+     * @deprecated 请使用 buildTopDimensionsWithMerge 替代，避免重复查询
      */
+    @Deprecated
     private List<Map<String, String>> buildTopPaths(JSONArray dims, Map<String, String> params) throws Exception {
         if (dims == null || dims.isEmpty()) {
             List<Map<String, String>> res = new ArrayList<>();
@@ -462,8 +873,6 @@ public class DynamicReportGenerator {
         }
         return result;
     }
-
-    // ================= 辅助方法 =================
 
     /**
      * 左侧多字段展示规则：

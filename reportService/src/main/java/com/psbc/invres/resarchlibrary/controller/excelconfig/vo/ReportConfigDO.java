@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
  */
 @Data
 @TableName("report_config")
-public class ReportConfig {
+public class ReportConfigDO {
 
     @TableId
     private String prKeyId;

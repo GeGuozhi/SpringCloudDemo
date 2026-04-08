@@ -36,6 +36,22 @@ spring:
             test-while-idle: true
             test-on-borrow: false
             test-on-return: false
+        # ODS数据库
+        odsdb:
+          driver-class-name: com.mysql.cj.jdbc.Driver
+          url: jdbc:mysql://localhost:3306/odsdb?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+          username: root
+          password: Mm123456
+          type: com.alibaba.druid.pool.DruidDataSource
+          druid:
+            initial-size: 2
+            min-idle: 2
+            max-active: 10
+            max-wait: 60000
+            validation-query: SELECT 1
+            test-while-idle: true
+            test-on-borrow: false
+            test-on-return: false
   # 告诉 Spring Boot 始终执行 schema.sql (默认行为通常是 embedded 数据库才执行，MySQL 需要显式开启或模式设置)
   sql:
     init:
@@ -54,3 +70,10 @@ knife4j:
   enable: true
   setting:
     language: zh_cn
+
+# SQL 日志（打印执行过的 SQL）
+logging:
+  level:
+    com.psbc.invres.resarchlibrary: DEBUG
+    com.psbc.inv.resarchlibrary.mapper: DEBUG
+    org.springframework.jdbc.core: DEBUG

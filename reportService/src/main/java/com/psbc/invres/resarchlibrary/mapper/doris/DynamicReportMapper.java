@@ -1,9 +1,8 @@
 package com.psbc.invres.resarchlibrary.mapper.doris;
 
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Repository;
+import com.baomidou.dynamic.datasource.annotation.DS;
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 import java.util.Map;
@@ -16,20 +15,18 @@ import java.util.Map;
  *    MySQL 驱动默认不启用 information_schema，导致列名为空字符串，且 null 值被过滤）
  * - JdbcTemplate 直接使用 ResultSetMetaData.getColumnName() 获取列名，行为更稳定
  */
-@Slf4j
-@Repository
-public class DynamicReportMapper {
-
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
+/**
+ * 通用动态查询 Mapper：
+ * - 使用 MyBatis 执行任意 SELECT 语句，返回 List<Map<String,Object>>
+ * - 未来如果需要多数据源，可以在实现它的 Service 上加 @DS("xxx")
+ */
+@Mapper
+@DS("dwsdb")
+public interface DynamicReportMapper {
 
     /**
      * 执行任意 SELECT 语句（仅限读），返回列名到值的 Map 列表。
-     *
-     * @param sql 完整的 SELECT 语句（已在调用方完成参数替换）
-     * @return 列名到值的 Map 列表，key 为列名，value 为列值（包含 null）
+     * 说明：SQL 语句已在上层通过 SqlBuilder 替换完占位符。
      */
-    public List<Map<String, Object>> executeSelect(String sql) {
-        return jdbcTemplate.queryForList(sql);
-    }
+    List<Map<String, Object>> executeSelect(@Param("sql") String sql);
 }
