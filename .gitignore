@@ -220,3 +220,10 @@
 /reportService/target/test-classes/com/report/AppTest.class
 /reportService/report-service.iml
 /chatService/chatService.iml
+/.idea/
+/parentProject.iml
+target/
+.idea/
+*.iml
+*.log
+.DS_Store
