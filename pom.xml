@@ -25,7 +25,6 @@
     <module>configServer</module>
     <module>configClient</module>
     <module>chatService</module>
-    <module>reportService</module>
   </modules>
 
   <parent>
