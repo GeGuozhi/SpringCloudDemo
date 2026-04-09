@@ -218,7 +218,7 @@
 /reportService/target/classes/ddl.sql
 /reportService/target/classes/dml.sql
 /reportService/target/test-classes/com/report/AppTest.class
-/reportService/report-service.iml
+/reportService/reportService.iml
 /chatService/chatService.iml
 /.idea/
 /parentProject.iml
